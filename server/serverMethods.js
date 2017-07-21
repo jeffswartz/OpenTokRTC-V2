@@ -121,7 +121,7 @@ function ServerMethods(aLogLevel, aModules) {
       var enableAnnotations = enableScreensharing && config.get(C.ENABLE_ANNOTATIONS);
       var enableFeedback = config.get(C.ENABLE_FEEDBACK);
       var indexMainTitle = config.get(C.INDEX_MAIN_TITLE, config);
-      var indexConfirmationDbText = config.get(C.INDEX_CONFIRMATION_DB_TEXT, config);
+      var indexHasConfirmationDb = config.get(C.INDEX_HAS_CONFIRMATION_DB, config);
       var roomCSS = config.get(C.ROOM_CSS, config);
       var roomCustomMenuItems = config.get(C.ROOM_CUSTOM_MENU_ITEMS, config);
       var endCallHeaderText = config.get(C.END_CALL_HEADER_TEXT, config);
@@ -159,7 +159,7 @@ function ServerMethods(aLogLevel, aModules) {
                 iosAppId,
                 iosUrlPrefix,
                 indexMainTitle,
-                indexConfirmationDbText,
+                indexHasConfirmationDb,
                 roomCSS,
                 roomCustomMenuItems,
                 endCallHeaderText,
@@ -275,7 +275,7 @@ function ServerMethods(aLogLevel, aModules) {
     aRes
       .render('index.ejs', {
         indexMainTitle: aReq.tbConfig.indexMainTitle,
-        indexConfirmationDbText: aReq.tbConfig.indexConfirmationDbText,
+        indexHasConfirmationDb: aReq.tbConfig.indexHasConfirmationDb,
       }, (err, html) => {
         if (err) {
           logger.error('getRoot. error: ', err);

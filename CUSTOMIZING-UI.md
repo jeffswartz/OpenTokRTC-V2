@@ -18,6 +18,9 @@ The `web/` directory in the project root is mounted as a static path in the appl
 
 You can put your images in the `web/images` directory. They can be accessed in the application as `/images/`. For example, the file `web/images/opentok-logo.png` can be accessed in the browser as `/images/opentok-logo.png`.
 
+Add ejs partials files to a subdirectory of the the views/partials directory. The ejs files in
+the root of the views directory include the contents of these files in the user interface.
+
 ## Config settings for overriding the default user interface
 
 You can set properties in the config/config.json file to override some default
@@ -25,8 +28,7 @@ user interface elements. Or you can set environment variables to set overrides.
 
 | config property <br> (JSONPath) | Environment variable | Description |
 | ------------- | ------------- | -- |
-| `ui.index.mainTitle`  | `INDEX_MAIN_TITLE` | Content to add to the top of the index page. See the views/index.ejs file to see the default content. |
-| `ui.index.confirmationDbText`  | `INDEX_CONFIRMATION_DB_TEXT`   | Text to display in a confirmation dialog in the index page. If this is set, a confirmation dialog box is displayed before the user enters the chat room. If it is not set, no confirmation dialog box is displayed. |
+| `ui.index.hasConfirmationDb`  | `INDEX_HAS_CONFIRMATION_DB`   | Whether to display a confirmation dialog box in the index page. If this is set to `true`, a confirmation dialog box is displayed before the user enters the chat room. If it is not set, no confirmation dialog box is displayed. If you set this to true, you must define an index.confirmation.ejs containing the HTML for the confirmation dialog box. |
 | `ui.room.css`  | `ROOM_CSS`  | A path to the CSS file to use for the room page. If this is not set, the page uses the css/room.opentok.css file. |
 | `ui.room.customMenuItems`  | `ROOM_CUSTOM_MENU_ITEMS`  | Custom menu items to add to the left-hand menu of the room page. |
 | `ui.endCall.headerText`  | `END_CALL_HEADER_TEXT`  | Content to add to the top of the end call page. See the templates/endMeeting.ejs file to see the default content. |
@@ -43,7 +45,7 @@ The following is an example of a config/config.json file that sets each of these
     "ui": {
       "index": {
         "mainTitle": "<h1>The OpenTok Platform Demo</h1>",
-        "confirmationDbText": "By accepting our terms of use you acknowledge that you have read the <a target=\"_blank\" href=\"https://tokbox.com/support/tos\">user agreement</a>, and <a target=\"_blank\" href=\"https://tokbox.com/support/privacy-policy\">privacy policy</a>, and you are at least 18 years of age.</p>"
+        "hasConfirmationDb": "By accepting our terms of use you acknowledge that you have read the <a target=\"_blank\" href=\"https://tokbox.com/support/tos\">user agreement</a>, and <a target=\"_blank\" href=\"https://tokbox.com/support/privacy-policy\">privacy policy</a>, and you are at least 18 years of age.</p>"
       },
       "room": {
         "css": "/css/webrtc.opentok.css",

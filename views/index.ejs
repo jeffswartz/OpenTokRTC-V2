@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <link rel="stylesheet" href="css/buttons.css" />
-<% if (indexConfirmationDbText) { %>
+<% if (indexHasConfirmationDb) { %>
     <link rel="stylesheet" href="css/checkboxes.css" />
 <% } %>
     <link rel="stylesheet" href="css/landing.opentok.css">
@@ -22,7 +22,7 @@
     <script defer type="text/javascript" src="/js/rtcApp.js"></script>
 
     <script>
-      window.hasConfirmationDb = '<%=indexConfirmationDbText%>';
+      window.hasConfirmationDb = <%=indexHasConfirmationDb%>;
     </script>
   </head>
 
@@ -33,13 +33,7 @@
         <header>
           <img src="images/opentok-logo.png" alt="opentok transparent logo">
         </header>
-<% if (indexMainTitle) { %>
-        <%- indexMainTitle %>
-<% } else { %>
-        <h1>WebRTC Demo</h1>
-        <h2>Built by TokBox on the OpenTok Platform</h2>
-        <h3>This WebRTC Demo enables group video conferencing, text chat, screen sharing, and more</h3>
-<% } %>
+        <%- include partials/default/index.header.ejs  %>
         <form>
           <p>
             <input id="room" class="text-input required" placeholder="Type the name of the meeting">
@@ -54,19 +48,8 @@
       </section>
     </section>
 
-<% if (indexConfirmationDbText) { %>
-    <section class="tc-modal contract">
-      <form class="tc-dialog">
-        <i data-icon="close_gray" class="close"></i>
-        <header>
-          <span>Terms of Use</span>
-        </header>
-        <p><%- indexConfirmationDbText %></p>
-        <footer>
-          <button id="enter" class="btn tb btn-primary btn-arrow btn-next btn-padding accept">Accept and Continue</button>
-        </footer>
-      </form>
-    </section>
+<% if (indexHasConfirmationDb) { %>
+  <%- include partials/opentokrtc.com/index.confirmation.ejs  %>
 <% } %>
 
     <script>

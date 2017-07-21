@@ -88,7 +88,7 @@ E.DEFAULT_INDEX_PAGE = { envVar: 'DEFAULT_INDEX_PAGE', jsonPath: 'defaultPageInd
 
 E.INDEX_MAIN_TITLE = { envVar: 'INDEX_MAIN_TITLE', jsonPath: 'ui.index.mainTitle', defaultValue: undefined };
 
-E.INDEX_CONFIRMATION_DB_TEXT = { envVar: 'INDEX_CONFIRMATION_DB_TEXT', jsonPath: 'ui.index.confirmationDbText', defaultValue: undefined };
+E.INDEX_HAS_CONFIRMATION_DB = { envVar: 'INDEX_HAS_CONFIRMATION_DB', jsonPath: 'ui.index.hasConfirmationDb', defaultValue: false, parser: parseBool };
 
 E.ROOM_CSS = { envVar: 'ROOM_CSS', jsonPath: 'ui.room.css', defaultValue: "/css/room.opentok.css" };
 
