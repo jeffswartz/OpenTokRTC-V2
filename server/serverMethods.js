@@ -14,6 +14,9 @@
 var SwaggerBP = require('swagger-boilerplate');
 var C = require('./serverConstants');
 var configLoader = require('./configLoader');
+var express = require('express');
+var path = require('path');
+var app = express();
 var FirebaseArchives = require('./firebaseArchives');
 
 
@@ -131,6 +134,7 @@ function ServerMethods(aLogLevel, aModules) {
         logger.error('Firebase not configured. Please provide firebase credentials or disable archive_manager');
       }
 
+      var partialsPath = config.get(C.PARTIALS_PATH);
 
             // For this object we need to know if/when we're reconnecting so we can shutdown the
             // old instance.
@@ -272,10 +276,20 @@ function ServerMethods(aLogLevel, aModules) {
 
   // Returns the personalized root page
   function getRoot(aReq, aRes) {
+    var tbConfig = aReq.tbConfig;
+    if (tbConfig.partialsPath) {
+      app.set('views', path.join(__dirname, 'partials/opentokrtc/'));
+    }
+    aRes.app.set('views', [ 
+      path.join(__dirname, '../views/partials/default/'),
+      process.cwd() + '/views',
+    ]);
+    logger.log('__dirname ' + path.join(__dirname, '../views/partials/default'));
     aRes
       .render('index.ejs', {
         indexMainTitle: aReq.tbConfig.indexMainTitle,
         indexHasConfirmationDb: aReq.tbConfig.indexHasConfirmationDb,
+        foo: 'partials/default/index.header.ejs'
       }, (err, html) => {
         if (err) {
           logger.error('getRoot. error: ', err);

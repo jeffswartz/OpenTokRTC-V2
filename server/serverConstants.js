@@ -97,3 +97,5 @@ E.ROOM_CUSTOM_MENU_ITEMS = { envVar: 'ROOM_CUSTOM_MENU_ITEMS', jsonPath: 'ui.roo
 E.END_CALL_HEADER_TEXT = { envVar: 'END_CALL_HEADER_TEXT', jsonPath: 'ui.endCall.headerText', defaultValue: undefined };
 
 E.END_CALL_SHOW_TB_LINKS = { envVar: 'END_CALL_SHOW_TB_LINKS', jsonPath: 'ui.endCall.showTbLinks', defaultValue: false, parser: parseBool };
+
+E.PARTIALS_PATH = { envVar: 'PARTIALS_PATH', jsonPath: 'partialsPath', defaultValue: undefined };

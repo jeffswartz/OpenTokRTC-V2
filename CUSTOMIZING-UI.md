@@ -23,16 +23,41 @@ the root of the views directory include the contents of these files in the user 
 
 ## Config settings for overriding the default user interface
 
-You can set properties in the config/config.json file to override some default
-user interface elements. Or you can set environment variables to set overrides.
+The app uses EJS partials for some data. The default partials are located in the
+views/partials/default/ directory. You can write your own partials to override the default
+user interface.
 
-| config property <br> (JSONPath) | Environment variable | Description |
-| ------------- | ------------- | -- |
-| `ui.index.hasConfirmationDb`  | `INDEX_HAS_CONFIRMATION_DB`   | Whether to display a confirmation dialog box in the index page. If this is set to `true`, a confirmation dialog box is displayed before the user enters the chat room. If it is not set, no confirmation dialog box is displayed. If you set this to true, you must define an index.confirmation.ejs containing the HTML for the confirmation dialog box. |
-| `ui.room.css`  | `ROOM_CSS`  | A path to the CSS file to use for the room page. If this is not set, the page uses the css/room.opentok.css file. |
-| `ui.room.customMenuItems`  | `ROOM_CUSTOM_MENU_ITEMS`  | Custom menu items to add to the left-hand menu of the room page. |
-| `ui.endCall.headerText`  | `END_CALL_HEADER_TEXT`  | Content to add to the top of the end call page. See the templates/endMeeting.ejs file to see the default content. |
-| `ui.endCall.showTbLinks`  | `END_CALL_SHOW_TB_LINKS`  | Whether to simply display links to TokBox info ("Build a WebRTC app and "Learn about TokBox") in the end call page. The default is `false`, and the end call page displays other info, including a list of archives (if there are any) for the call. |
+In the config/config.json file, add the following property to the top level of the JSON:
+
+```json
+  "partialsPath": "my-partials-subdir-name"
+```
+
+Set this property to the name of the subdirectory of the views/partials/ directory that contains
+your custom EJS partials. Do not add the trailing slash -- just set the subdirectory name.
+
+You can also set this as an environment variable named `PARTIALS_PATH`.
+
+For example, the views/partials/opentokrtc.com directory contains EJS partials defining the user
+interface used by the opentokrtc.com site. (To use this directory, you would set `partialsPath` to
+`"opentokrtc.com"`.)
+
+If a custom EJS partial is not set, the app uses the default UI.
+
+The app includes the following EJS partials
+
+| EJS partial file | Description |
+| ---------------- | ----------- |
+| index.confirmation.ejs  | Contains the HTML for the confirmation dialog box in the index (home) view. If you do not include this partial file, no confirmation dialog box is displayed. |
+| index.header.ejs  | The heading text to include in the index (home) page | 
+| room.menu.ejs | Custom menu items to add to the left-hand menu of the room page. |
+| endCall.header.ejs | Content to add to the top of the end call page. |
+| endCall.showTbLinks.ejs`  | `END_CALL_SHOW_TB_LINKS`  | Whether to simply display links to TokBox info ("Build a WebRTC app and "Learn about TokBox") in the end call page. The default is `false`, and the end call page displays other info, including a list of archives (if there are any) for the call. |
+
+You can also specify a custom CSS file for the room view. In the config/config.json file, specify
+the path to the custom CSS file (as a subdirectory of the web/css directory). You can also set this
+as an environment variable named `ROOM_CSS`. If you do not set this, the room page uses the default
+css/room.opentok.css file.
 
 The following is an example of a config/config.json file that sets each of these user interface options:
 
@@ -42,20 +67,8 @@ The following is an example of a config/config.json file that sets each of these
         "apiKey": "12345",
         "apiSecret": "58ade1b63e6a883bf"
     },
-    "ui": {
-      "index": {
-        "mainTitle": "<h1>The OpenTok Platform Demo</h1>",
-        "hasConfirmationDb": "By accepting our terms of use you acknowledge that you have read the <a target=\"_blank\" href=\"https://tokbox.com/support/tos\">user agreement</a>, and <a target=\"_blank\" href=\"https://tokbox.com/support/privacy-policy\">privacy policy</a>, and you are at least 18 years of age.</p>"
-      },
-      "room": {
-        "css": "/css/webrtc.opentok.css",
-        "customMenuItems": "<li class=\"tooltip\" tooltip=\"Stop receiving video\">\n  <a id=\"videoSwitch\"><i data-icon=\"videoSwitch\"></i><span>Stop receiving video</span></a>\n</li>\n<li class=\"tooltip\" tooltip=\"Mute all participants\">\n  <a id=\"audioSwitch\"><i data-icon=\"audioSwitch\"></i><span>Mute all participants</span></a>\n</li>\n<li>\n  <a id=\"endCall\" class=\"danger\"><i data-icon=\"end\"></i><span>End meeting</span></a>\n</li>\n<li class=\"bottom tooltip\" tooltip=\"See Documentation\">\n  <a href=\"https://tokbox.com/developer/\" target=\"_blank\" class=\"button see-documentation\"><span>See Documentation</span></a>\n</li>\n<li class=\"tooltip\" tooltip=\"Talk to Sales\">\n  <a href=\"https://tokbox.com/contact/sales\" target=\"_blank\" class=\"button talk-to-sales\"><span>Talk to Sales</span></a>\n</li>"
-      },
-      "endCall": {
-        "headerText": "Thank you for trying the TokBox WebRTC Demo.",
-        "showTbLinks": true
-      }
-    }
+    "partials": "mysite",
+    "roomCSS": "/css/webrtc.opentok.css"
 }
 ```
 
