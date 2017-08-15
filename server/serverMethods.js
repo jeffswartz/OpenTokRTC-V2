@@ -393,25 +393,33 @@ function ServerMethods(aLogLevel, aModules) {
         // We have to create an authentication token for the new user...
         var fbUserToken =
           enableArchiveManager && fbArchives.createUserToken(usableSessionInfo.sessionId, userName);
-        // and finally, answer...
-        var answer = {
-          apiKey: tbConfig.apiKey,
-          token: tbConfig.otInstance
-                  .generateToken(usableSessionInfo.sessionId, {
-                    role: 'publisher',
-                    data: JSON.stringify({ userName }),
-                  }),
-          username: userName,
-          firebaseURL:
-            (enableArchiveManager && fbArchives.baseURL + '/' + usableSessionInfo.sessionId) || 'unknown',
-          firebaseToken: fbUserToken || 'unknown',
-          chromeExtId: tbConfig.chromeExtId,
-          enableArchiveManager: tbConfig.enableArchiveManager,
-          enableAnnotation: tbConfig.enableAnnotations,
-          enableArchiving: tbConfig.enableArchiving,
-        };
-        answer[aReq.sessionIdField || 'sessionId'] = usableSessionInfo.sessionId;
-        aRes.send(answer);
+        
+        // We need a test Session ID for the pre-call test
+        tbConfig.otInstance.createSession({ mediaMode: 'routed' }, (error, testSession) => {
+          // and finally, answer...
+          var answer = {
+            apiKey: tbConfig.apiKey,
+            token: tbConfig.otInstance
+                    .generateToken(usableSessionInfo.sessionId, {
+                      role: 'publisher',
+                      data: JSON.stringify({ userName }),
+                    }),
+            username: userName,
+            firebaseURL:
+              (enableArchiveManager && fbArchives.baseURL + '/' + usableSessionInfo.sessionId) || 'unknown',
+            firebaseToken: fbUserToken || 'unknown',
+            chromeExtId: tbConfig.chromeExtId,
+            enableArchiveManager: tbConfig.enableArchiveManager,
+            enableAnnotation: tbConfig.enableAnnotations,
+            enableArchiving: tbConfig.enableArchiving,
+            testSessionId: testSession.sessionId,
+            testSessionToken: tbConfig.otInstance.generateToken(testSession.sessionId, {
+              role: 'publisher'
+            }),
+          };
+          answer[aReq.sessionIdField || 'sessionId'] = usableSessionInfo.sessionId;
+          aRes.send(answer);
+        })
       });
   }
 
