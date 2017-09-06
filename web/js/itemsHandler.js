@@ -1,25 +1,23 @@
-!(function(global) {
-  'use strict';
-
-  var Handler = function(container, items) {
-    ['click', 'dblclick'].forEach(function(name) {
+!(function (global) {
+  const Handler = function (container, items) {
+    ['click', 'dblclick'].forEach(function (name) {
       container.addEventListener(name, this);
     }, this);
-    var events = ['roomController:video', 'roomController:audio', 'roomController:videoDisabled',
+    const events = ['roomController:video', 'roomController:audio', 'roomController:videoDisabled',
       'roomController:videoEnabled', 'roomController:disconnected',
       'roomController:connected'];
-    events.forEach(function(name) {
+    events.forEach(function (name) {
       window.addEventListener(name, this);
     }, this);
     this.items = items;
   };
 
-  var setVideoDisabled = function(item, disabled) {
+  const setVideoDisabled = function (item, disabled) {
     item && item.data('videoDisabled', disabled);
   };
 
   Handler.prototype = {
-    handleEvent: function(evt) {
+    handleEvent(evt) {
       switch (evt.type) {
         case 'click':
           var elemClicked = evt.target;
@@ -29,7 +27,7 @@
           Utils.sendEvent(elemClicked.data('eventName'), {
             streamId: elemClicked.data('streamId'),
             name: elemClicked.data('action'),
-            streamType: elemClicked.data('streamType')
+            streamType: elemClicked.data('streamType'),
           });
           break;
 
@@ -46,7 +44,7 @@
           }
 
           var action = evt.type.replace('roomController:', '');
-          HTMLElems.setEnabled(item.querySelector('.' + action + '-action'), detail.enabled);
+          HTMLElems.setEnabled(item.querySelector(`.${action}-action`), detail.enabled);
           action === 'video' && setVideoDisabled(item, !detail.enabled);
           break;
 
@@ -66,18 +64,18 @@
 
           if (target.classList.contains('dblclick_area')) {
             Utils.sendEvent('layoutView:itemSelected', {
-              item: this.items[target.data('id')]
+              item: this.items[target.data('id')],
             });
           }
           break;
       }
-    }
+    },
   };
   function init(container, items) {
     return new Handler(container, items);
   }
 
   global.ItemsHandler = {
-    init: init
+    init,
   };
 }(this));

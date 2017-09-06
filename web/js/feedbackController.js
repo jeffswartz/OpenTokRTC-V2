@@ -1,14 +1,12 @@
-!(function(global) {
-  'use strict';
-
-  var debug =
+!(function (global) {
+  const debug =
     new Utils.MultiLevelLogger('feedbackController.js', Utils.MultiLevelLogger.DEFAULT_LEVELS.all);
-  var otHelper;
+  let otHelper;
 
-  var eventHandlers = {
-    sendFeedback: function(evt) {
-      var report = evt.detail;
-      var loggedEvent = {
+  const eventHandlers = {
+    sendFeedback(evt) {
+      const report = evt.detail;
+      const loggedEvent = {
         action: 'SessionQuality',
         partnerId: otHelper.session.apiKey,
         sessionId: otHelper.session.id,
@@ -16,20 +14,20 @@
         publisherId: otHelper.publisherId,
         audioScore: report.audioScore,
         videoScore: report.videoScore,
-        description: report.description
+        description: report.description,
       };
       debug.log('feedbackView:sendFeedback', loggedEvent);
       OT.analytics.logEvent(loggedEvent);
     },
-    reportIssue: function() {
-      var loggedEvent = {
+    reportIssue() {
+      const loggedEvent = {
         action: 'ReportIssue',
         partnerId: otHelper.session.apiKey,
         sessionId: otHelper.session.id,
         connectionId: otHelper.session.connection.id,
-        publisherId: otHelper.publisherId
+        publisherId: otHelper.publisherId,
       };
-      OT.reportIssue(function(error, reportId) {
+      OT.reportIssue((error, reportId) => {
         if (error) {
           debug.error('feedbackView:reportIssue', loggedEvent);
         } else {
@@ -37,13 +35,13 @@
           debug.log('feedbackView:reportIssue', loggedEvent);
         }
       });
-    }
+    },
   };
 
-  var init = function(aOTHelper) {
+  const init = function (aOTHelper) {
     return LazyLoader.load([
-      '/js/feedbackView.js'
-    ]).then(function() {
+      '/js/feedbackView.js',
+    ]).then(() => {
       otHelper = aOTHelper;
       Utils.addEventsHandlers('feedbackView:', eventHandlers, global);
       FeedbackView.init();
@@ -51,6 +49,6 @@
   };
 
   global.FeedbackController = {
-    init: init
+    init,
   };
 }(this));

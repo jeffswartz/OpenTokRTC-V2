@@ -1,50 +1,46 @@
-!(function(exports) {
-  'use strict';
-
-  var archives = null;
-  var listeners = {};
+!(function (exports) {
+  let archives = null;
+  const listeners = {};
 
   function init(aUrl, aToken) {
-    var self = this;
+    const self = this;
     return LazyLoader.dependencyLoad([
-      'https://cdn.firebase.com/js/client/2.3.1/firebase.js'
-    ]).then(function() {
-      return new Promise(function(resolve, reject) {
+      'https://cdn.firebase.com/js/client/2.3.1/firebase.js',
+    ]).then(() => new Promise((resolve, reject) => {
         // url points to the session root
-        var sessionRef = new Firebase(aUrl);
-        sessionRef.authWithCustomToken(aToken, function() {
-          var archivesRef = sessionRef.child('archives');
-          archivesRef.on('value', function updateArchiveHistory(snapshot) {
-            var handlers = listeners.value;
-            archives = snapshot.val();
-            var archiveValues = Promise.resolve(archives || {});
-            handlers && handlers.forEach(function(aHandler) {
-              archiveValues.then(aHandler.method.bind(aHandler.context));
-            });
-          }, function onCancel(err) {
+      const sessionRef = new Firebase(aUrl);
+      sessionRef.authWithCustomToken(aToken, () => {
+        const archivesRef = sessionRef.child('archives');
+        archivesRef.on('value', (snapshot) => {
+          const handlers = listeners.value;
+          archives = snapshot.val();
+          const archiveValues = Promise.resolve(archives || {});
+          handlers && handlers.forEach((aHandler) => {
+            archiveValues.then(aHandler.method.bind(aHandler.context));
+          });
+        }, (err) => {
             // We should get called here only if we lose permission...
             // which should only happen if the branch is erased.
-            var handlers = listeners.value;
-            console.error('Lost connection to Firebase. Reason: ', err); // eslint-disable-line no-console
-            var archiveValues = Promise.resolve({});
-            handlers && handlers.forEach(function(aHandler) {
-              archiveValues.then(aHandler.method.bind(aHandler.context));
-            });
+          const handlers = listeners.value;
+          console.error('Lost connection to Firebase. Reason: ', err); // eslint-disable-line no-console
+          const archiveValues = Promise.resolve({});
+          handlers && handlers.forEach((aHandler) => {
+            archiveValues.then(aHandler.method.bind(aHandler.context));
           });
-          sessionRef.child('connections').push(new Date().getTime()).onDisconnect().remove();
-          resolve(self);
         });
+        sessionRef.child('connections').push(new Date().getTime()).onDisconnect().remove();
+        resolve(self);
       });
-    });
+    }));
   }
 
   function addEventListener(type, aHandler) {
-    var context;
+    let context;
     if (!(type in listeners)) {
       listeners[type] = [];
     }
 
-    var hd = aHandler;
+    let hd = aHandler;
     if (typeof hd === 'object') {
       context = hd;
       hd = hd.handleEvent;
@@ -53,7 +49,7 @@
     if (hd) {
       listeners[type].push({
         method: hd,
-        context: context
+        context,
       });
     }
   }
@@ -62,10 +58,10 @@
     if (!(type in listeners)) {
       return false;
     }
-    var handlers = listeners[type];
+    const handlers = listeners[type];
     if (handlers) {
-      for (var i = 0, l = handlers.length; i < l; i++) {
-        var thisHandler = aHandler;
+      for (let i = 0, l = handlers.length; i < l; i++) {
+        let thisHandler = aHandler;
         if (typeof thisHandler === 'object') {
           thisHandler = aHandler.handleEvent;
         }
@@ -78,13 +74,13 @@
     return false;
   }
 
-  var FirebaseModel = {
-    addEventListener: addEventListener,
-    removeEventListener: removeEventListener,
-    init: init,
+  const FirebaseModel = {
+    addEventListener,
+    removeEventListener,
+    init,
     get archives() {
       return archives;
-    }
+    },
   };
 
   exports.FirebaseModel = FirebaseModel;

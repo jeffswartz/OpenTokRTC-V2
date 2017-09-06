@@ -1,38 +1,36 @@
-!(function(globals) {
-  'use strict';
+!(function (globals) {
+  let debug;
+  let _chromeExtId;
+  let _isSharing;
+  let _hasPendingOperation = false;
+  const NAME_SUFFIX = '\'s screen';
+  const DEFAULT_NAME = 'Unknown';
+  let otHelper;
+  let enableAnnotations = false;
 
-  var debug;
-  var _chromeExtId;
-  var _isSharing;
-  var _hasPendingOperation = false;
-  var NAME_SUFFIX = '\'s screen';
-  var DEFAULT_NAME = 'Unknown';
-  var otHelper;
-  var enableAnnotations = false;
-
-  var screenPublisherOptions = {
+  const screenPublisherOptions = {
     insertMode: 'append',
     width: '100%',
     height: '100%',
     name: 'screen',
     showControls: false,
     style: {
-      nameDisplayMode: 'off'
+      nameDisplayMode: 'off',
     },
     publishAudio: false,
-    videoSource: 'screen'
+    videoSource: 'screen',
   };
 
-  var streamHandlers = {
-    destroyed: function(evt) {
+  const streamHandlers = {
+    destroyed(evt) {
       _isSharing = false;
       Utils.sendEvent('screenShareController:destroyed');
       enableAnnotations && Utils.sendEvent('screenShareController:annotationEnded');
-    }
+    },
   };
 
-  var roomViewEvents = {
-    shareScreen: function(evt) {
+  const roomViewEvents = {
+    shareScreen(evt) {
       if (_hasPendingOperation) {
         return;
       }
@@ -42,22 +40,22 @@
         _isSharing = false;
         // We don't need to send this because desktop stream is sending a destroyed event.
       } else {
-        var desktopElement = RoomView.createStreamView('desktop', {
+        const desktopElement = RoomView.createStreamView('desktop', {
           name: screenPublisherOptions.name,
           type: 'desktop',
-          controlElems: {}
+          controlElems: {},
         });
         _hasPendingOperation = true;
         otHelper.shareScreen(desktopElement, screenPublisherOptions, streamHandlers,
                              enableAnnotations)
-          .then(function() {
+          .then(() => {
             _isSharing = true;
             _hasPendingOperation = false;
             Utils.sendEvent('screenShareController:changeScreenShareStatus',
                             { isSharing: _isSharing });
             enableAnnotations && Utils.sendEvent('screenShareController:annotationStarted');
           })
-          .catch(function(error) {
+          .catch((error) => {
             _hasPendingOperation = false;
             if (error.code === OTHelper.screenShareErrorCodes.accessDenied) {
               RoomView.deleteStreamView('desktop');
@@ -67,17 +65,17 @@
             }
           });
       }
-    }
+    },
   };
 
-  var screenShareViewEvents = {
-    installExtension: function(evt) {
+  const screenShareViewEvents = {
+    installExtension(evt) {
       try {
-        chrome.webstore.install('https://chrome.google.com/webstore/detail/' + _chromeExtId,
-          function() {
+        chrome.webstore.install(`https://chrome.google.com/webstore/detail/${_chromeExtId}`,
+          () => {
             Utils.sendEvent('screenShareController:extInstallationResult',
                             { error: false });
-          }, function(err) {
+          }, (err) => {
             Utils.sendEvent('screenShareController:extInstallationResult',
                             { error: true, message: err });
           });
@@ -87,13 +85,13 @@
         // registred and, in this case, we have a bug because this was already controlled
         debug.error('Error installing extension:', e);
       }
-    }
+    },
   };
 
   function init(aUserName, aChromeExtId, aOTHelper, aEnableAnnotations) {
     return LazyLoader.dependencyLoad([
-      '/js/screenShareView.js'
-    ]).then(function() {
+      '/js/screenShareView.js',
+    ]).then(() => {
       enableAnnotations = aEnableAnnotations;
       otHelper = aOTHelper;
       debug = new Utils.MultiLevelLogger('screenShareController.js',
@@ -110,11 +108,11 @@
     });
   }
 
-  var ScreenShareController = {
-    init: init,
+  const ScreenShareController = {
+    init,
     get chromeExtId() {
       return _chromeExtId;
-    }
+    },
   };
 
   globals.ScreenShareController = ScreenShareController;

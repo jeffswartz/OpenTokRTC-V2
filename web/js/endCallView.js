@@ -1,19 +1,17 @@
-!(function(exports) {
-  'use strict';
+!(function (exports) {
+  const VIDEO_EXT = 'mp4';
+  const LIST_SELECTOR = '.videos.tc-list ul';
+  const MAIN_PAGE = '/index.html';
 
-  var VIDEO_EXT = 'mp4';
-  var LIST_SELECTOR = '.videos.tc-list ul';
-  var MAIN_PAGE = '/index.html';
+  const _templateSrc = '/templates/endMeeting.ejs';
+  let _template;
+  let _model;
+  let _sessionId;
 
-  var _templateSrc = '/templates/endMeeting.ejs';
-  var _template;
-  var _model;
-  var _sessionId;
-
-  var addHandlers = function() {
+  const addHandlers = function () {
     !exports.isWebRTCVersion && HTMLElems.addHandlerArchive(LIST_SELECTOR);
-    var btn = document.getElementById('newCall');
-    btn && btn.addEventListener('click', function(evt) {
+    const btn = document.getElementById('newCall');
+    btn && btn.addEventListener('click', (evt) => {
       evt.preventDefault();
       evt.stopImmediatePropagation();
       window.location = window.location.origin + MAIN_PAGE;
@@ -21,74 +19,70 @@
   };
 
   function render(archives) {
-    var data = {
-      archives: []
+    const data = {
+      archives: [],
     };
-    var sortingDescending = function(a, b) {
-      var tA = archives[a].createdAt;
-      var tB = archives[b].createdAt;
+    const sortingDescending = function (a, b) {
+      const tA = archives[a].createdAt;
+      const tB = archives[b].createdAt;
 
       return tB - tA;
     };
 
     archives = archives || {};
 
-    Object.keys(archives).sort(sortingDescending).forEach(function(archId) {
-      var archive = archives[archId];
-      var anArch = {};
+    Object.keys(archives).sort(sortingDescending).forEach((archId) => {
+      const archive = archives[archId];
+      const anArch = {};
       // data for preview
       anArch.status = archive.status;
-      anArch.hrefPrev = archive.localDownloadURL + '?generatePreview';
+      anArch.hrefPrev = `${archive.localDownloadURL}?generatePreview`;
       anArch.txtPrev = Utils.getLabelText(archive);
       // data for delete
       anArch.id = archive.id;
       anArch.recordingUser = archive.recordingUser;
       // data for download
       anArch.hrefDwnld = archive.localDownloadURL;
-      anArch.dwnldName = archive.name + '.' + VIDEO_EXT;
+      anArch.dwnldName = `${archive.name}.${VIDEO_EXT}`;
       data.archives.push(anArch);
     });
     data.numArchives = data.archives.length;
     data.sessionId = _sessionId;
     data.isWebRTCVersion = exports.isWebRTCVersion;
 
-    _template.render(data).then(function(aHTML) {
+    _template.render(data).then((aHTML) => {
       document.body.innerHTML = aHTML;
       addHandlers();
     });
   }
 
-  var eventHandlers = {
-    'EndCallController:endCall': function(evt) {
+  const eventHandlers = {
+    'EndCallController:endCall': function (evt) {
       if (_model) {
         _model.addEventListener('value', render);
         render(_model.archives);
       } else {
         render();
       }
-    }
+    },
   };
 
-  var alreadyInitialized = false;
+  let alreadyInitialized = false;
 
-  exports.EJS = function(aTemplateOptions) {
+  exports.EJS = function (aTemplateOptions) {
     if (aTemplateOptions.url) {
       this._templatePromise =
         exports.Request.sendXHR('GET', aTemplateOptions.url, null, null, 'text')
-          .then(function(aTemplateSrc) {
-            return exports.ejs.compile(aTemplateSrc, { filename: aTemplateOptions.url });
-          });
+          .then(aTemplateSrc => exports.ejs.compile(aTemplateSrc, { filename: aTemplateOptions.url }));
     } else {
       this._templatePromise = Promise.resolve(exports.ejs.compile(aTemplateOptions.text));
     }
-    this.render = function(aData) {
-      return this._templatePromise.then(function(aTemplate) {
-        return aTemplate(aData);
-      });
+    this.render = function (aData) {
+      return this._templatePromise.then(aTemplate => aTemplate(aData));
     };
   };
 
-  var init = function(model, sessionId) {
+  const init = function (model, sessionId) {
     _model = model;
     _sessionId = sessionId;
     if (alreadyInitialized) {
@@ -101,6 +95,6 @@
   };
 
   exports.EndCallView = {
-    init: init
+    init,
   };
 }(this));

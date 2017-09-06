@@ -1,15 +1,11 @@
-!(function(global) {
-  'use strict';
-
-  var init = function() {
+!(function (global) {
+  const init = function () {
     return LazyLoader.dependencyLoad([
-      '/js/layoutMenuView.js'
-    ]).then(function() {
-      return LayoutMenuView.init();
-    });
+      '/js/layoutMenuView.js',
+    ]).then(() => LayoutMenuView.init());
   };
 
   global.LayoutMenuController = {
-    init: init
+    init,
   };
 }(this));

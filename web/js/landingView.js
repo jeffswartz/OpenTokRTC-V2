@@ -1,10 +1,8 @@
-!(function(global) {
-  'use strict';
-
-  var room,
+!(function (global) {
+  let room,
     enterButton;
 
-  var init = function() {
+  const init = function () {
     enterButton = document.getElementById('enter');
     room = document.getElementById('room');
     resetForm();
@@ -14,14 +12,14 @@
     }
   };
 
-  var isValid = function() {
-    var formValid = true;
+  const isValid = function () {
+    let formValid = true;
 
-    var fields = document.querySelectorAll('form input.required');
+    const fields = document.querySelectorAll('form input.required');
 
-    Array.prototype.map.call(fields, function(field) {
-      var errorMessage = document.querySelector('.error-' + field.id);
-      var valid = field.type === 'checkbox' ? field.checked : field.value.trim();
+    Array.prototype.map.call(fields, (field) => {
+      const errorMessage = document.querySelector(`.error-${field.id}`);
+      const valid = field.type === 'checkbox' ? field.checked : field.value.trim();
       valid ? errorMessage.classList.remove('show') : errorMessage.classList.add('show');
       formValid = formValid && valid;
     });
@@ -29,40 +27,38 @@
     return formValid;
   };
 
-  var resetForm = function() {
-    var fields = document.querySelectorAll('form input');
-    Array.prototype.map.call(fields, function(field) {
+  var resetForm = function () {
+    const fields = document.querySelectorAll('form input');
+    Array.prototype.map.call(fields, (field) => {
       field.value = '';
       field.checked = false;
     });
   };
 
-  var showContract = function() {
-    var selector = '.tc-modal.contract';
-    var ui = document.querySelector(selector);
+  const showContract = function () {
+    const selector = '.tc-modal.contract';
+    const ui = document.querySelector(selector);
 
     return Modal.show(selector)
-      .then(function() {
-        return new Promise(function(resolve, reject) {
-          ui.addEventListener('click', function onClicked(evt) {
-            var classList = evt.target.classList;
-            var hasAccepted = classList.contains('accept');
-            if (!hasAccepted && !classList.contains('close')) {
-              return;
-            }
-            evt.stopImmediatePropagation();
-            evt.preventDefault();
-            ui.removeEventListener('click', onClicked);
-            Modal.hide(selector).then(function() { resolve(hasAccepted); });
-          });
+      .then(() => new Promise((resolve, reject) => {
+        ui.addEventListener('click', function onClicked(evt) {
+          const classList = evt.target.classList;
+          const hasAccepted = classList.contains('accept');
+          if (!hasAccepted && !classList.contains('close')) {
+            return;
+          }
+          evt.stopImmediatePropagation();
+          evt.preventDefault();
+          ui.removeEventListener('click', onClicked);
+          Modal.hide(selector).then(() => { resolve(hasAccepted); });
         });
-      });
+      }));
   };
 
-  var navigateToRoom = function() {
-    var base = window.location.href.replace(/([^/]+)\.[^/]+$/, '');
-    var url = base.concat('room/', room.value);
-    var userName = document.getElementById('user').value.trim();
+  const navigateToRoom = function () {
+    const base = window.location.href.replace(/([^/]+)\.[^/]+$/, '');
+    let url = base.concat('room/', room.value);
+    const userName = document.getElementById('user').value.trim();
     if (userName) {
       url = url.concat('?userName=', userName);
     }
@@ -70,12 +66,12 @@
     window.location.href = url;
   };
 
-  var addHandlers = function() {
+  var addHandlers = function () {
     enterButton.addEventListener('click', function onEnterClicked(event) {
       event.preventDefault();
       event.stopImmediatePropagation();
 
-      var form = document.querySelector('form');
+      const form = document.querySelector('form');
       if (!isValid()) {
         form.classList.add('error');
         return;
@@ -85,7 +81,7 @@
       enterButton.removeEventListener('click', onEnterClicked);
 
       if (isWebRTCVersion) {
-        showContract().then(function(accepted) {
+        showContract().then((accepted) => {
           if (accepted) {
             navigateToRoom();
           } else {
@@ -99,6 +95,6 @@
   };
 
   global.LandingView = {
-    init: init
+    init,
   };
 }(this));

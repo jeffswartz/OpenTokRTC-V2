@@ -1,77 +1,75 @@
-!(function(exports) {
-  'use strict';
-
+!(function (exports) {
   // HTML elements for the view
-  var dock;
-  var handler;
-  var roomNameElem;
-  var participantsNumberElem;
-  var participantsStrElem;
-  var recordingsNumberElem;
-  var videoSwitch;
-  var audioSwitch;
-  var startChatElem;
-  var unreadCountElem;
-  var enableArchiveManager;
+  let dock;
+  let handler;
+  let roomNameElem;
+  let participantsNumberElem;
+  let participantsStrElem;
+  let recordingsNumberElem;
+  let videoSwitch;
+  let audioSwitch;
+  let startChatElem;
+  let unreadCountElem;
+  let enableArchiveManager;
 
-  var _unreadMsg = 0;
-  var _chatHasBeenShown = false;
+  let _unreadMsg = 0;
+  let _chatHasBeenShown = false;
 
-  var MODAL_TXTS = {
+  const MODAL_TXTS = {
     mute: {
       head: 'Mute all participants, including yourself',
       detail: 'Everyone will be notified and can click their <i data-icon="no_mic"></i> to ' +
               'unmute themselves.',
-      button: 'Mute all participants'
+      button: 'Mute all participants',
     },
     muteRemotely: {
       head: 'All participants microphones are going to be disabled in the call',
       detail: 'If you want to keep talking , ' +
               'you must enable manually your own microphone',
-      button: 'I understand'
+      button: 'I understand',
     },
     unmutedRemotely: {
       head: 'Your microphone is going to be enabled in the call',
       detail: 'If you want to keep muted , ' +
               'you must disable manually your own microphone',
-      button: 'I understand'
+      button: 'I understand',
     },
     join: {
       head: 'All participants are muted',
       detail: 'You can unmute everyone by toggling the Mute all participants option. Or you can ' +
               'unmute just yourself by clicking your <microphone icon> icon',
-      button: 'I understand'
+      button: 'I understand',
     },
     disabledVideos: {
       head: 'Stop receiving video from other participants',
       detail: 'This option can help to improve or preserve call quality in situations of poor ' +
               'bandwidth or other resource constraints.',
-      button: 'Stop receiving video'
+      button: 'Stop receiving video',
     },
     endCall: {
       head: 'Exit the Meeting',
       detail: 'You are going to exit the OpenTok Meeting Room. The call will continue with the ' +
               'remaining participants.',
-      button: 'End meeting'
+      button: 'End meeting',
     },
     sessionDisconnected: {
       head: 'Session disconected',
       detail: 'The connection to the OpenTok platform has been lost. Check your network ' +
               'connectivity and press Reload to connect again.',
-      button: 'Reload'
+      button: 'Reload',
     },
     chromePublisherError: {
       head: 'Internal Chrome Error',
       detail: 'Failed to acquire microphone. This is a known Chrome bug. Please completely quit ' +
               'and restart your browser.',
-      button: 'Reload'
-    }
+      button: 'Reload',
+    },
   };
 
-  var NOT_SHARING = {
+  const NOT_SHARING = {
     detail: {
-      isSharing: false
-    }
+      isSharing: false,
+    },
   };
 
   function setUnreadMessages(count) {
@@ -93,26 +91,26 @@
     HTMLElems.flush('#toggleChat');
   }
 
-  var chatViews = {
-    unreadMessage: function(evt) {
+  const chatViews = {
+    unreadMessage(evt) {
       setUnreadMessages(_unreadMsg + 1);
       if (!_chatHasBeenShown) {
         setChatStatus(true);
       }
-    }
+    },
   };
 
-  var chatEvents = {
-    hidden: function(evt) {
+  const chatEvents = {
+    hidden(evt) {
       document.body.data('chatStatus', 'hidden');
       setUnreadMessages(0);
       HTMLElems.flush('#toggleChat');
-    }
+    },
   };
 
-  var hangoutEvents = {
-    screenOnStage: function(event) {
-      var status = event.detail.status;
+  const hangoutEvents = {
+    screenOnStage(event) {
+      const status = event.detail.status;
       if (status === 'on') {
         dock.data('previouslyCollapsed', dock.classList.contains('collapsed'));
         dock.classList.add('collapsed');
@@ -121,22 +119,22 @@
                                                         dock.classList.remove('collapsed');
         dock.data('previouslyCollapsed', null);
       }
-    }
+    },
   };
 
-  var screenShareCtrEvents = {
+  const screenShareCtrEvents = {
     changeScreenShareStatus: toggleScreenSharing,
     destroyed: toggleScreenSharing.bind(undefined, NOT_SHARING),
-    annotationStarted: function(evt) {
+    annotationStarted(evt) {
       document.body.data('annotationVisible', 'true');
     },
-    annotationEnded: function(evt) {
+    annotationEnded(evt) {
       document.body.data('annotationVisible', 'false');
-    }
+    },
   };
 
-  var roomControllerEvents = {
-    userChangeStatus: function(evt) {
+  const roomControllerEvents = {
+    userChangeStatus(evt) {
       // If user changed the status we need to reset the switch
       if (evt.detail.name === 'video') {
         setSwitchStatus(false, false, videoSwitch, 'roomView:videoSwitch');
@@ -144,32 +142,32 @@
         setSwitchStatus(false, false, audioSwitch, 'roomView:muteAllSwitch');
       }
     },
-    roomMuted: function(evt) {
-      var isJoining = evt.detail.isJoining;
+    roomMuted(evt) {
+      const isJoining = evt.detail.isJoining;
       setAudioSwitchRemotely(true);
       showConfirm(isJoining ? MODAL_TXTS.join : MODAL_TXTS.muteRemotely);
     },
-    sessionDisconnected: function(evt) {
+    sessionDisconnected(evt) {
       RoomView.participantsNumber = 0;
       LayoutManager.removeAll();
     },
-    controllersReady: function() {
-      var elements = dock.querySelectorAll('.menu [disabled]');
-      Array.prototype.forEach.call(elements, function(element) {
+    controllersReady() {
+      const elements = dock.querySelectorAll('.menu [disabled]');
+      Array.prototype.forEach.call(elements, (element) => {
         Utils.setDisabled(element, false);
       });
     },
-    annotationStarted: function(evt) {
+    annotationStarted(evt) {
       document.body.data('annotationVisible', 'true');
     },
-    annotationEnded: function(evt) {
+    annotationEnded(evt) {
       document.body.data('annotationVisible', 'false');
     },
-    chromePublisherError: function(evt) {
-      showConfirm(MODAL_TXTS.chromePublisherError).then(function() {
+    chromePublisherError(evt) {
+      showConfirm(MODAL_TXTS.chromePublisherError).then(() => {
         document.location.reload();
       });
-    }
+    },
   };
 
   function setAudioSwitchRemotely(isMuted) {
@@ -196,8 +194,8 @@
     // The title takes two lines maximum when the dock is expanded. When the title takes
     // one line with expanded mode, it ends taking two lines while is collapsing because the witdh
     // is reduced, so we have to fix the height to avoid this ugly effect during transition.
-    var title = dock.querySelector('.info h1');
-    title.style.height = title.clientHeight + 'px';
+    const title = dock.querySelector('.info h1');
+    title.style.height = `${title.clientHeight}px`;
   }
 
   function createStreamView(streamId, type, controlBtns, name) {
@@ -209,13 +207,13 @@
   }
 
   function deleteVideoButton(id) {
-    document.querySelector('li[data-id="' + id + '"] .controls .buttons .video-action')
+    document.querySelector(`li[data-id="${id}"] .controls .buttons .video-action`)
       .style.display = 'none';
   }
 
   function setSwitchStatus(status, bubbleUp, domElem, evtName) {
-    var oldStatus = domElem.classList.contains('activated');
-    var newStatus;
+    const oldStatus = domElem.classList.contains('activated');
+    let newStatus;
     if (status === undefined) {
       newStatus = domElem.classList.toggle('activated');
     } else {
@@ -229,24 +227,24 @@
     bubbleUp && newStatus !== oldStatus && Utils.sendEvent(evtName, { status: newStatus });
   }
 
-  var cronograph = null;
+  let cronograph = null;
 
   function getCronograph() {
     if (cronograph) {
       return Promise.resolve(cronograph);
     }
     return LazyLoader.dependencyLoad([
-      '/js/components/cronograph.js'
-    ]).then(function() {
+      '/js/components/cronograph.js',
+    ]).then(() => {
       cronograph = Cronograph;
       return cronograph;
     });
   }
 
   function onStartArchiving(data) {
-    getCronograph().then(function(cronograph) { // eslint-disable-line consistent-return
-      var start = function(archive) {
-        var duration = 0;
+    getCronograph().then((cronograph) => { // eslint-disable-line consistent-return
+      const start = function (archive) {
+        let duration = 0;
         archive && (duration = Math.round((Date.now() - archive.createdAt) / 1000));
         cronograph.start(duration);
       };
@@ -256,9 +254,9 @@
         return start(null);
       }
 
-      var onModel = function(model) { // eslint-disable-line consistent-return
-        var archives = FirebaseModel.archives;
-        var archiveId = data.id;
+      const onModel = function (model) { // eslint-disable-line consistent-return
+        const archives = FirebaseModel.archives;
+        const archiveId = data.id;
 
         if (archives) {
           return start(archives[archiveId]);
@@ -270,7 +268,7 @@
         });
       };
 
-      var model = RecordingsController.model;
+      const model = RecordingsController.model;
 
       if (model) {
         cronograph.init();
@@ -286,14 +284,14 @@
   }
 
   function onStopArchiving() {
-    getCronograph().then(function(cronograph) {
+    getCronograph().then((cronograph) => {
       cronograph.reset();
     });
   }
 
   function showConfirm(txt) {
-    var selector = '.switch-alert-modal';
-    var ui = document.querySelector(selector);
+    const selector = '.switch-alert-modal';
+    const ui = document.querySelector(selector);
     function loadModalText() {
       ui.querySelector(' header .msg').textContent = txt.head;
       ui.querySelector(' p.detail').innerHTML = txt.detail;
@@ -301,33 +299,31 @@
     }
 
     return Modal.show(selector, loadModalText)
-      .then(function() {
-        return new Promise(function(resolve, reject) {
-          ui.addEventListener('click', function onClicked(evt) {
-            var classList = evt.target.classList;
-            var hasAccepted = classList.contains('accept');
-            if (evt.target.id !== 'switchAlerts' && !hasAccepted && !classList.contains('close')) {
-              return;
-            }
-            evt.stopImmediatePropagation();
-            evt.preventDefault();
-            ui.removeEventListener('click', onClicked);
-            Modal.hide(selector).then(function() { resolve(hasAccepted); });
-          });
+      .then(() => new Promise((resolve, reject) => {
+        ui.addEventListener('click', function onClicked(evt) {
+          const classList = evt.target.classList;
+          const hasAccepted = classList.contains('accept');
+          if (evt.target.id !== 'switchAlerts' && !hasAccepted && !classList.contains('close')) {
+            return;
+          }
+          evt.stopImmediatePropagation();
+          evt.preventDefault();
+          ui.removeEventListener('click', onClicked);
+          Modal.hide(selector).then(() => { resolve(hasAccepted); });
         });
-      });
+      }));
   }
 
-  var addHandlers = function() {
-    handler.addEventListener('click', function(e) {
+  const addHandlers = function () {
+    handler.addEventListener('click', (e) => {
       dock.classList.toggle('collapsed');
       dock.data('previouslyCollapsed', null);
     });
 
-    var menu = document.querySelector('.menu ul');
+    const menu = document.querySelector('.menu ul');
 
-    menu.addEventListener('click', function(e) {
-      var elem = e.target;
+    menu.addEventListener('click', (e) => {
+      let elem = e.target;
       elem.blur();
       // pointer-events is not working on IE so we can receive as target a child
       elem = HTMLElems.getAncestorByTagName(elem, 'a');
@@ -346,14 +342,14 @@
           break;
         case 'startArchiving':
         case 'stopArchiving':
-          Utils.sendEvent('roomView:' + elem.id);
+          Utils.sendEvent(`roomView:${elem.id}`);
           break;
         case 'startChat':
         case 'stopChat':
           setChatStatus(elem.id === 'startChat');
           break;
         case 'endCall':
-          showConfirm(MODAL_TXTS.endCall).then(function(endCall) {
+          showConfirm(MODAL_TXTS.endCall).then((endCall) => {
             if (endCall) {
               RoomView.participantsNumber = 0;
               Utils.sendEvent('roomView:endCall');
@@ -366,7 +362,7 @@
           break;
         case 'videoSwitch':
           if (!videoSwitch.classList.contains('activated')) {
-            showConfirm(MODAL_TXTS.disabledVideos).then(function(shouldDisable) {
+            showConfirm(MODAL_TXTS.disabledVideos).then((shouldDisable) => {
               shouldDisable && setSwitchStatus(true, true, videoSwitch, 'roomView:videoSwitch');
             });
           } else {
@@ -375,7 +371,7 @@
           break;
         case 'audioSwitch':
           if (!audioSwitch.classList.contains('activated')) {
-            showConfirm(MODAL_TXTS.mute).then(function(shouldDisable) {
+            showConfirm(MODAL_TXTS.mute).then((shouldDisable) => {
               shouldDisable &&
                 setSwitchStatus(true, true, audioSwitch, 'roomView:muteAllSwitch');
             });
@@ -385,8 +381,8 @@
       }
     });
 
-    exports.addEventListener('archiving', function(e) {
-      var detail = e.detail;
+    exports.addEventListener('archiving', (e) => {
+      const detail = e.detail;
 
       switch (detail.status) {
         case 'started':
@@ -411,27 +407,27 @@
   };
 
   function toggleScreenSharing(evt) {
-    var isSharing = evt.detail.isSharing;
+    const isSharing = evt.detail.isSharing;
     document.body.data('desktopStatus', isSharing ? 'sharing' : 'notSharing');
     HTMLElems.flush('#toggleSharing');
   }
 
-  var getURLtoShare = function() {
+  const getURLtoShare = function () {
     return window.location.origin + window.location.pathname;
   };
 
-  var addClipboardFeature = function() {
-    var input = document.querySelector('.bubble[for="addToCall"] input');
-    var urlToShare = getURLtoShare();
+  const addClipboardFeature = function () {
+    const input = document.querySelector('.bubble[for="addToCall"] input');
+    const urlToShare = getURLtoShare();
     input.value = urlToShare;
-    var clipboard = new Clipboard(document.querySelector('#addToCall'), { // eslint-disable-line no-unused-vars
-      text: function() {
+    const clipboard = new Clipboard(document.querySelector('#addToCall'), { // eslint-disable-line no-unused-vars
+      text() {
         return urlToShare;
-      }
+      },
     });
   };
 
-  var init = function(enableHangoutScroll, aEnableArchiveManager) {
+  const init = function (enableHangoutScroll, aEnableArchiveManager) {
     enableArchiveManager = aEnableArchiveManager;
     initHTMLElements();
     addHandlers();
@@ -440,14 +436,14 @@
   };
 
   exports.RoomView = {
-    init: init,
+    init,
 
     set roomName(value) {
       HTMLElems.addText(roomNameElem, value);
     },
 
     set participantsNumber(value) {
-      for (var i = 0, l = participantsNumberElem.length; i < l; i++) {
+      for (let i = 0, l = participantsNumberElem.length; i < l; i++) {
         HTMLElems.replaceText(participantsNumberElem[i], value);
       }
       HTMLElems.replaceText(participantsStrElem, value === 1 ? 'participant' : 'participants');
@@ -457,10 +453,10 @@
       recordingsNumberElem && (recordingsNumberElem.textContent = value);
     },
 
-    createStreamView: createStreamView,
-    deleteStreamView: deleteStreamView,
-    deleteVideoButton: deleteVideoButton,
-    setAudioSwitchRemotely: setAudioSwitchRemotely,
-    showConfirmChangeMicStatus: showConfirmChangeMicStatus
+    createStreamView,
+    deleteStreamView,
+    deleteVideoButton,
+    setAudioSwitchRemotely,
+    showConfirmChangeMicStatus,
   };
 }(this));

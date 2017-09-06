@@ -1,13 +1,11 @@
 /* global window, safari, LazyLoader, Draggable */
-!(function(exports) {
-  'use strict';
+!(function (exports) {
+  const getCurrentTime = function () {
+    const now = new Date();
+    const time = [];
+    let suffix = ' AM';
 
-  var getCurrentTime = function() {
-    var now = new Date();
-    var time = [];
-    var suffix = ' AM';
-
-    var hours = now.getHours();
+    let hours = now.getHours();
     if (hours > 12) {
       suffix = ' PM';
       hours -= 12;
@@ -16,7 +14,7 @@
     time.push(hours);
     time.push(':');
 
-    var minutes = now.getMinutes();
+    const minutes = now.getMinutes();
     minutes < 10 && time.push('0');
 
     time.push(minutes);
@@ -25,35 +23,35 @@
     return time.join('');
   };
 
-  var inspectObject = function(obj) {
-    var str = '';
-    Object.keys(obj).forEach(function(elto) {
-      str += '\n' + elto + ':' + JSON.stringify(obj[elto]);
+  const inspectObject = function (obj) {
+    let str = '';
+    Object.keys(obj).forEach((elto) => {
+      str += `\n${elto}:${JSON.stringify(obj[elto])}`;
     });
     return str;
   };
 
-  var sendEvent = function(eventName, data, target) {
+  const sendEvent = function (eventName, data, target) {
     data = data ? { detail: data } : {};
-    var newEvt = new CustomEvent(eventName, data);
+    const newEvt = new CustomEvent(eventName, data);
     (target || exports).dispatchEvent(newEvt);
   };
 
-  var addHandlers = function(events) {
-    Object.keys(events).forEach(function(evtName) {
-      var event = events[evtName];
+  const addHandlers = function (events) {
+    Object.keys(events).forEach((evtName) => {
+      const event = events[evtName];
       (event.target || exports).addEventListener(event.name, event.handler);
     });
   };
 
-  var addEventsHandlers = function(eventPreffixName, handlers, target) {
+  const addEventsHandlers = function (eventPreffixName, handlers, target) {
     eventPreffixName = eventPreffixName || '';
-    Object.keys(handlers).forEach(function(eventName) {
+    Object.keys(handlers).forEach((eventName) => {
       (target || exports).addEventListener(eventPreffixName + eventName, handlers[eventName]);
     });
   };
 
-  var setTransform = function(style, transform) {
+  const setTransform = function (style, transform) {
     /* eslint-disable no-multi-assign */
     style.MozTransform = style.webkitTransform = style.msTransform = style.transform = transform;
     /* eslint-enable no-multi-assign */
@@ -79,21 +77,21 @@
   // parses a URL search string. It returns an object that has a key the parameter name(s)
   // and as values either the value if the value is unique or an array of values if it exists
   // more than once on the search
-  var parseSearch = function(aSearchStr) {
+  const parseSearch = function (aSearchStr) {
     aSearchStr = decodeStr(aSearchStr);
     return aSearchStr.slice(1).split('&')
-      .map(function(aParam) { return aParam.split(/=(.+)?/); })
-      .reduce(function(aObject, aCurrentValue) {
-        var parName = aCurrentValue[0];
+      .map(aParam => aParam.split(/=(.+)?/))
+      .reduce((aObject, aCurrentValue) => {
+        const parName = aCurrentValue[0];
         aObject.params[parName] = _addValue(aObject.params[parName], aCurrentValue[1] || null);
         return aObject;
       },
       {
         params: {},
-        getFirstValue: function(aParam) {
+        getFirstValue(aParam) {
           return Array.isArray(this.params[aParam]) ? this.params[aParam][0] : this.params[aParam];
-        }
-      }
+        },
+      },
     );
   };
 
@@ -101,10 +99,10 @@
   // key: value or key: [value1,value2] structure.
   function generateSearchStr(aObject) {
     return Object.keys(aObject)
-      .reduce(function(aPrevious, aParam, aIndex) {
-        var value = aObject[aParam];
+      .reduce((aPrevious, aParam, aIndex) => {
+        let value = aObject[aParam];
         value = Array.isArray(value) ? value : [value];
-        value.forEach(function(aSingleValue, aValueIndex) {
+        value.forEach((aSingleValue, aValueIndex) => {
           (aIndex + aValueIndex) && aPrevious.push('&');
           aPrevious.push(aParam);
           aSingleValue && aPrevious.push('=', aSingleValue);
@@ -118,23 +116,23 @@
     return str ? window.decodeURIComponent(str) : str;
   }
 
-  var setDisabled = function(element, disabled) {
+  const setDisabled = function (element, disabled) {
     element.disabled = disabled;
     disabled ? element.setAttribute('disabled', 'disabled') :
                element.removeAttribute('disabled');
   };
 
-  var formatter = new Intl.DateTimeFormat('en-US', {
+  const formatter = new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
   });
 
   function toPrettyDuration(duration) {
-    var time = [];
+    const time = [];
 
     // 0 hours -> Don't add digit
-    var hours = Math.floor(duration / (60 * 60));
+    const hours = Math.floor(duration / (60 * 60));
     if (hours) {
       time.push(hours);
       time.push(':');
@@ -142,7 +140,7 @@
 
     // 0 minutes -> if 0 hours -> Don't add digit
     // 0 minutes -> if hours > 0 -> Add minutes with zero as prefix if minutes < 10
-    var minutes = Math.floor(duration / 60) % 60;
+    const minutes = Math.floor(duration / 60) % 60;
     if (time.length) {
       (minutes < 10) && time.push('0');
       time.push(minutes);
@@ -152,7 +150,7 @@
       time.push(':');
     }
 
-    var seconds = duration % 60;
+    const seconds = duration % 60;
     (time.length) && (seconds < 10) && time.push('0');
     time.push(seconds);
 
@@ -160,68 +158,66 @@
   }
 
   function getLabelText(archive) {
-    var date = new Date(archive.createdAt);
+    const date = new Date(archive.createdAt);
 
-    var time = formatter.format(date).toLowerCase();
+    const time = formatter.format(date).toLowerCase();
 
-    var prefix = '';
+    let prefix = '';
     time.indexOf(':') === 1 && (prefix = '0');
 
-    var label = [prefix, time, ' - ', archive.recordingUser, '\'s Archive (',
+    const label = [prefix, time, ' - ', archive.recordingUser, '\'s Archive (',
       toPrettyDuration(archive.duration), 's)'];
 
     return label.join('');
   }
 
   function isIE() {
-    var userAgent = 'userAgent' in navigator && (navigator.userAgent.toLowerCase() || '');
+    const userAgent = 'userAgent' in navigator && (navigator.userAgent.toLowerCase() || '');
     return /msie/.test(userAgent) || userAgent.indexOf('trident/') !== -1;
   }
 
   function isSafari() {
-    var checkObject = function(p) { return p.toString() === '[object SafariRemoteNotification]'; };
+    const checkObject = function (p) { return p.toString() === '[object SafariRemoteNotification]'; };
     return /constructor/i.test(window.HTMLElement) ||
         checkObject(!window.safari || safari.pushNotification);
   }
 
-  var Utils = {
-    isSafari: isSafari,
-    getCurrentTime: getCurrentTime,
-    inspectObject: inspectObject,
-    sendEvent: sendEvent,
-    addEventsHandlers: addEventsHandlers,
-    addHandlers: addHandlers,
+  const Utils = {
+    isSafari,
+    getCurrentTime,
+    inspectObject,
+    sendEvent,
+    addEventsHandlers,
+    addHandlers,
     get draggableUI() {
       return document.querySelectorAll('[draggable]').length;
     },
-    getDraggable: function() {
+    getDraggable() {
       return LazyLoader.dependencyLoad([
-        '/js/components/draggable.js'
-      ]).then(function() {
-        return Draggable;
-      });
+        '/js/components/draggable.js',
+      ]).then(() => Draggable);
     },
-    isScreen: function(item) {
-      var type = item.data('streamType');
+    isScreen(item) {
+      const type = item.data('streamType');
       return type === 'desktop' || type === 'screen';
     },
-    setTransform: setTransform,
-    parseSearch: parseSearch,
-    generateSearchStr: generateSearchStr,
-    decodeStr: decodeStr,
-    isChrome: function() {
-      var userAgent = 'userAgent' in navigator && (navigator.userAgent.toLowerCase() || '');
-      var vendor = 'vendor' in navigator && (navigator.vendor.toLowerCase() || '');
+    setTransform,
+    parseSearch,
+    generateSearchStr,
+    decodeStr,
+    isChrome() {
+      const userAgent = 'userAgent' in navigator && (navigator.userAgent.toLowerCase() || '');
+      const vendor = 'vendor' in navigator && (navigator.vendor.toLowerCase() || '');
       return /chrome|chromium/i.test(userAgent) && /google inc/.test(vendor);
     },
-    setDisabled: setDisabled,
-    getLabelText: getLabelText,
-    isIE: isIE
+    setDisabled,
+    getLabelText,
+    isIE,
   };
 
   // Just replacing global.utils might not be safe... let's just expand it...
   exports.Utils = exports.Utils || {};
-  Object.keys(Utils).forEach(function(utilComponent) {
+  Object.keys(Utils).forEach((utilComponent) => {
     exports.Utils[utilComponent] = Utils[utilComponent];
   });
 }(this));
