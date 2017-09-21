@@ -1,6 +1,6 @@
-/* global Utils, Request, RoomStatus, RoomView, LayoutManager, Modal, LazyLoader,
-EndCallController, ChatController, LayoutMenuController, RecordingsController,
-ScreenShareController, FeedbackController */
+/* global Utils, Request, RoomStatus, RoomView, LayoutManager, LazyLoader, Modal,
+EndCallController, ChatController, GoogleAuth, LayoutMenuController, OTHelper, PrecallController,
+RecordingsController, ScreenShareController, FeedbackController */
 
 !(function (exports) {
   'use strict';
@@ -14,6 +14,9 @@ ScreenShareController, FeedbackController */
   var enableAnnotations = true;
   var enableHangoutScroll = false;
   var enableArchiveManager = false;
+  var enableSip = false;
+  var requireGoogleAuth = false; // For SIP dial-out
+  var googleAuth = null;
 
   var setPublisherReady;
   var publisherReady = new Promise(function (resolve) {
@@ -66,6 +69,18 @@ ScreenShareController, FeedbackController */
       showControls: false,
       style: {
         audioLevelDisplayMode: 'off',
+        buttonDisplayMode: 'off',
+        nameDisplayMode: 'on',
+        videoDisabledDisplayMode: 'off'
+      }
+    },
+    noVideo: {
+      height: '100%',
+      width: '100%',
+      inserMode: 'append',
+      showControls: true,
+      style: {
+        audioLevelDisplayMode: 'auto',
         buttonDisplayMode: 'off',
         nameDisplayMode: 'on',
         videoDisabledDisplayMode: 'off'
@@ -205,6 +220,34 @@ ScreenShareController, FeedbackController */
       });
   };
 
+  var dialOut = function (phoneNumber) {
+    var alreadyInCall = Object.keys(subscriberStreams)
+    .some(function (streamId) {
+      if (subscriberStreams[streamId]) {
+        var stream = subscriberStreams[streamId].stream;
+        return (stream.isSip && stream.name === phoneNumber);
+      }
+      return false;
+    });
+
+    if (alreadyInCall) {
+      console.log('The number is already in this call: ' + phoneNumber); // eslint-disable-line no-console
+    } else {
+      var googleIdToken;
+      if (requireGoogleAuth) {
+        var user = googleAuth.currentUser.get();
+        googleIdToken = user.getAuthResponse().id_token;
+      } else {
+        googleIdToken = '';
+      }
+      var data = {
+        phoneNumber: phoneNumber,
+        googleIdToken: googleIdToken
+      };
+      Request.dialOut(roomName, data);
+    }
+  };
+
   var roomStatusHandlers = {
     updatedRemotely: function () {
       publisherReady.then(function () {
@@ -289,10 +332,9 @@ ScreenShareController, FeedbackController */
         buttonInfo = publisherButtons[name];
         newStatus = !buttonInfo.enabled;
         // There are a couple of possible race conditions that would end on us not changing
-        // the status on the publisher (because it's already on that state) but where we should
-        // update the UI to reflect the correct state.
+        // the status on the publisher (because it's already on that state).
         if (!otHelper.isPublisherReady || otHelper.publisherHas(name) === newStatus) {
-          sendStatus({ stream: { streamId: 'publisher' } }, name, newStatus);
+          return;
         }
       } else {
         var stream = subscriberStreams[streamId];
@@ -350,6 +392,33 @@ ScreenShareController, FeedbackController */
       _sharedStatus.roomMuted = roomMuted;
       setAudioStatus(roomMuted);
       sendSignalMuteAll(roomMuted, false);
+    },
+    dialOut: function (evt) {
+      if (evt.detail.phoneNumber) {
+        var phoneNumber = evt.detail.phoneNumber.replace(/\D/g, '');
+        if (requireGoogleAuth && (googleAuth.isSignedIn.get() !== true)) {
+          googleAuth.signIn().then(function () {
+            dialOut(phoneNumber);
+          });
+        } else {
+          dialOut(phoneNumber);
+        }
+      }
+    },
+    addToCall: function () {
+      showAddToCallModal();
+    },
+    togglePublisherAudio: function (evt) {
+      var newStatus = evt.detail.hasAudio;
+      if (!otHelper.isPublisherReady || otHelper.publisherHas('audio') !== newStatus) {
+        otHelper.togglePublisherAudio(newStatus);
+      }
+    },
+    togglePublisherVideo: function (evt) {
+      var newStatus = evt.detail.hasVideo;
+      if (!otHelper.isPublisherReady || otHelper.publisherHas('video') !== newStatus) {
+        otHelper.togglePublisherVideo(newStatus);
+      }
     }
   };
 
@@ -416,6 +485,9 @@ ScreenShareController, FeedbackController */
                 'user:', (evt.connection.data ?
                           JSON.parse(evt.connection.data).userName : 'unknown'));
     },
+    sessionConnected: function () {
+      Utils.sendEvent('roomController:sessionConnected');
+    },
     sessionDisconnected: function () {
       // The client has disconnected from the session.
       // This event may be dispatched asynchronously in response to a successful
@@ -433,14 +505,23 @@ ScreenShareController, FeedbackController */
         // dispatches a streamCreated event. For a code example and more details,
         // see StreamEvent.
         var stream = evt.stream;
-        var streamVideoType = stream.videoType;
+        // SIP call streams have no video.
+        var streamVideoType = stream.videoType || 'noVideo';
 
-        if (!(streamVideoType === 'camera' || streamVideoType === 'screen')) {
-          debug.error('Stream not contemplated: ' + stream.videoType);
-          return;
+        var connectionData;
+        try {
+          connectionData = JSON.parse(stream.connection.data);
+        } catch (error) {
+          connectionData = {};
+        }
+        // Add an isSip flag to stream object
+        stream.isSip = !!connectionData.sip;
+        if (!stream.name) {
+          stream.name = connectionData.name || '';
         }
 
         var streamId = stream.streamId;
+
         subscriberStreams[streamId] = {
           stream: stream,
           buttons: new SubscriberButtons(streamVideoType)
@@ -553,12 +634,9 @@ ScreenShareController, FeedbackController */
     }
   };
 
-  function showUserNamePrompt(roomName) {
-    var selector = '.user-name-modal';
-    function loadModalText() {
-      document.querySelector(selector + ' header .room-name').textContent = roomName;
-    }
-    return Modal.show(selector, loadModalText).then(function () {
+  function showAddToCallModal() {
+    var selector = '.add-to-call-modal';
+    return Modal.show(selector).then(function () {
       return new Promise(function (resolve) {
         var enterButton = document.querySelector(selector + ' button');
         enterButton.addEventListener('click', function onClicked(event) {
@@ -569,21 +647,8 @@ ScreenShareController, FeedbackController */
               resolve(document.querySelector(selector + ' input').value.trim());
             });
         });
-        document.querySelector(selector + ' input.username').focus();
       });
     });
-  }
-
-  function getReferrerURL() {
-    var referrerURL = '';
-
-    try {
-      referrerURL = new URL(document.referrer);
-    } catch (ex) { // eslint no-empty: ["error":{ "allowEmptyCatch": true }]
-
-    }
-
-    return referrerURL;
   }
 
   function getRoomParams() {
@@ -616,21 +681,14 @@ ScreenShareController, FeedbackController */
     debugPreferredResolution = params.getFirstValue('debugPreferredResolution');
     enableHangoutScroll = params.getFirstValue('enableHangoutScroll') !== undefined;
 
-    var info = {
-      username: usrId,
-      roomName: roomName
-    };
-
-    if (usrId || (window.location.origin === getReferrerURL().origin)) {
-      return Promise.resolve(info);
-    }
-    return showUserNamePrompt(roomName).then(function (userName) {
-      info.username = userName;
+    return PrecallController.showCallSettingsPrompt(roomName, usrId).then(function (info) {
+      info.roomName = roomName;
       return info;
     });
   }
 
   function getRoomInfo(aRoomParams) {
+    RoomView.showRoom();
     return Request
       .getRoomInfo(aRoomParams)
       .then(function (aRoomInfo) {
@@ -642,8 +700,12 @@ ScreenShareController, FeedbackController */
           throw new Error('Error getting room parameters');
         }
         aRoomInfo.roomName = aRoomParams.roomName;
+        aRoomInfo.publishAudio = aRoomParams.publishAudio;
+        aRoomInfo.publishVideo = aRoomParams.publishVideo;
         enableAnnotations = aRoomInfo.enableAnnotation;
         enableArchiveManager = aRoomInfo.enableArchiveManager;
+        enableSip = aRoomInfo.enableSip;
+        requireGoogleAuth = aRoomInfo.requireGoogleAuth;
         return aRoomInfo;
       });
   }
@@ -652,6 +714,7 @@ ScreenShareController, FeedbackController */
     '/js/components/htmlElems.js',
     '/js/helpers/resolutionAlgorithms.js',
     '/js/helpers/OTHelper.js',
+    '/js/helpers/opentok-network-test.js',
     '/js/itemsHandler.js',
     '/js/layoutView.js',
     '/js/layouts.js',
@@ -661,20 +724,22 @@ ScreenShareController, FeedbackController */
     '/js/chatController.js',
     '/js/recordingsController.js',
     '/js/endCallController.js',
+    '/js/precallController.js',
     '/js/layoutMenuController.js',
     '/js/screenShareController.js',
-    '/js/feedbackController.js'
+    '/js/feedbackController.js',
+    '/js/googleAuth.js'
   ];
 
   var init = function () {
     LazyLoader.load(modules)
     .then(function () {
+      otHelper = new OTHelper({});
+      exports.otHelper = otHelper;
       EndCallController.init({ addEventListener: function () {} }, 'NOT_AVAILABLE');
+      return PrecallController.init({ otHelper: otHelper });
     })
     .then(getRoomParams)
-    .then(function (aParams) {
-      return Promise.resolve(aParams);
-    })
     .then(getRoomInfo)
     .then(function (aParams) {
       var loadAnnotations = Promise.resolve();
@@ -699,16 +764,18 @@ ScreenShareController, FeedbackController */
   .then(function (aParams) {
     Utils.addEventsHandlers('roomView:', viewEventHandlers, exports);
     Utils.addEventsHandlers('roomStatus:', roomStatusHandlers, exports);
-    RoomView.init(enableHangoutScroll, enableArchiveManager);
+    RoomView.init(enableHangoutScroll, enableArchiveManager, enableSip);
 
     roomName = aParams.roomName;
     userName = aParams.username ? aParams.username.substring(0, 1000) : '';
 
-    // This kinda sucks, but it's the easiest way to leave the 'context' thing work as it does now
-    otHelper = new exports.OTHelper(aParams);
-    exports.otHelper = otHelper;
+    var sessionInfo = {
+      apiKey: aParams.apiKey,
+      sessionId: aParams.sessionId,
+      token: aParams.token
+    };
 
-    var connect = otHelper.connect.bind(otHelper);
+    var connect = otHelper.connect.bind(otHelper, sessionInfo);
 
       // Room's name is set by server, we don't need to do this, but
       // perphaps it would be convenient
@@ -717,6 +784,12 @@ ScreenShareController, FeedbackController */
 
     _allHandlers = RoomStatus.init(_allHandlers, { room: _sharedStatus });
 
+    if (enableSip && requireGoogleAuth) {
+      GoogleAuth.init(aParams.googleId, aParams.googleHostedDomain, function (aGoogleAuth) {
+        googleAuth = aGoogleAuth;
+      });
+    }
+
     ChatController
         .init(aParams.roomName, userName, _allHandlers)
         .then(connect)
@@ -724,8 +797,7 @@ ScreenShareController, FeedbackController */
         .then(function () {
           var publisherElement = RoomView.createStreamView('publisher', {
             name: userName,
-            type: 'publisher',
-            controlElems: publisherButtons
+            type: 'publisher'
           });
           // If we have all audios disabled, we need to set the button status
           // and don't publish audio
@@ -743,6 +815,7 @@ ScreenShareController, FeedbackController */
           publisherOptions.name = userName;
           return otHelper.publish(publisherElement, publisherOptions, {}).then(function () {
             setPublisherReady();
+            RoomView.showPublisherButtons();
           }).catch(function (errInfo) {
             if (errInfo.error.name === 'OT_CHROME_MICROPHONE_ACQUISITION_ERROR') {
               Utils.sendEvent('roomController:chromePublisherError');
