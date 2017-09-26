@@ -206,7 +206,7 @@ BubbleFactory, Clipboard, LayoutManager */
     handler = dock;
     callControlsElem = document.querySelector('.call-controls');
 
-    roomNameElem = dock.querySelector('#roomName');
+    roomNameElem = dock.querySelector('.room-name');
     participantsStrElem = document.getElementById('participantsStr');
     recordingsNumberElem = dock.querySelector('#recordings');
     videoSwitch = dock.querySelector('#videoSwitch');
@@ -506,7 +506,6 @@ BubbleFactory, Clipboard, LayoutManager */
         Utils.sendEvent('roomView:dialOut', {
           phoneNumber: document.getElementById('dialOutNumber').value
         });
-        BubbleFactory.get('addToCall').hide();
       });
     }
 
@@ -557,6 +556,8 @@ BubbleFactory, Clipboard, LayoutManager */
 
   var init = function (enableHangoutScroll, aEnableArchiveManager, aEnableSip) {
     enableArchiveManager = aEnableArchiveManager;
+    initHTMLElements();
+    dock.style.visibility = 'visible';
     enableSip = aEnableSip;
     addHandlers();
     addClipboardFeature();
