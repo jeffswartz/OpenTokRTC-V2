@@ -239,8 +239,28 @@
           <p>Message
             <span id="unreadMsg">(<span id="unreadCount">0</span>)</span></span>
           </p>
-        <div>
+        </div>
       </div>
+
+    </section>
+    <section id="chat">
+      <form class="dialog-chat" id="chatForm">
+        <header>
+          <div class="chat-title">
+            <i data-icon="message_blue"></i>
+            <span>Messaging</span>
+          </div>
+          <i id="closeChat" data-icon="close_blue"></i>
+        </header>
+        <div id="chatMsgs" class="tc-list">
+          <ul>
+          </ul>
+        </div>
+        <footer>
+          <textarea id="msgText" placeholder="Type your message..." required></textarea>
+          <button id="sendTxt" type="submit" data-icon="send" class="btn btn-blue btn-padding btn-padding-small" />
+        </footer>
+      </form>
     </section>
 
     <section id="screenShareErrors" class="screen-modal tc-modal">
@@ -299,20 +319,15 @@
       </section>
     </section>
 
-    <section id="chat">
-      <form class="dialog-chat" id="chatForm">
+    <section class="tc-modal user-name-modal">
+      <form class="tc-dialog">
         <header>
-          <span>Chat</span>
-          <i id="toggleChat" data-icon="collapse"></i>
-          <i id="closeChat" data-icon="close_white"></i>
+          <span>Welcome to</span> <span class="room-name"></span>
         </header>
-        <div id="chatMsgs" class="tc-list">
-          <ul>
-          </ul>
-        </div>
+        <p>Please enter your name to join this conversation.</p>
+        <input class="block username" placeholder="Enter your name">
         <footer>
-          <textarea id="msgText"></textarea>
-          <button id="sendTxt" type="submit" class="btn btn-blue btn-padding btn-padding-small ctaarrow-white ctaarrow-white-small">Send</button>
+          <button id="enter" class="btn btn-blue btn-padding-large ctaarrow-white">Join Meeting</button>
         </footer>
       </form>
     </section>

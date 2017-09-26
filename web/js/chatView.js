@@ -26,6 +26,7 @@
       addHandlers();
       return Chat.show().then(function () {
         scrollTo();
+        chatMsgInput.focus();
       });
     }
     removeHandlers();
@@ -156,8 +157,13 @@
   }
 
   function insertChatEvent(data) {
-    data.time = data.time || Utils.getCurrentTime();
-    insertChatLine(data);
+    var time = (data.time || Utils.getCurrentTime()).toLowerCase();
+    var item = HTMLElems.createElementAt(chatContent, 'li');
+    item.classList.add('event');
+    var name = data.sender || data.userName;
+    var text = time + ' - ' + name + ' ' + data.text;
+    insertText(item, text);
+    scrollTo(item);
   }
 
   function insertText(elemRoot, text) {
@@ -177,11 +183,11 @@
 
   function insertChatLine(data) {
     var item = HTMLElems.createElementAt(chatContent, 'li');
-
-    var info = HTMLElems.createElementAt(item, 'p');
-    if (data.fromSelf) {
-      info.classList.add('yourself');
+    if ((data.sender || data.userName) === usrId) {
+      item.classList.add('yourself');
     }
+    var info = HTMLElems.createElementAt(item, 'p');
+
     var time = data.time.toLowerCase();
     HTMLElems.createElementAt(info, 'span', null, time).classList.add('time');
     HTMLElems.createElementAt(info, 'span', null, data.sender || data.userName)
