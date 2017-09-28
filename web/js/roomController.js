@@ -1,6 +1,6 @@
 /* global Utils, Request, RoomStatus, RoomView, LayoutManager, LazyLoader, Modal,
 EndCallController, ChatController, GoogleAuth, LayoutMenuController, OTHelper, PrecallController,
-RecordingsController, ScreenShareController, FeedbackController */
+RecordingsController, ScreenShareController, FeedbackController, PhoneNumberController */
 
 !(function (exports) {
   'use strict';
@@ -429,10 +429,11 @@ RecordingsController, ScreenShareController, FeedbackController */
       sendSignalMuteAll(roomMuted, false);
     },
     dialOut: function (evt) {
-      if (evt.detail.phoneNumber) {
-        var phoneNumber = evt.detail.phoneNumber.replace(/\D/g, '');
+      if (evt.detail) {
+        var phoneNumber = evt.detail.replace(/\D/g, '');
         if (requireGoogleAuth && (googleAuth.isSignedIn.get() !== true)) {
           googleAuth.signIn().then(function () {
+            document.body.data('google-signed-in', 'true');
             dialOut(phoneNumber);
           });
         } else {
@@ -769,7 +770,8 @@ RecordingsController, ScreenShareController, FeedbackController */
     '/js/layoutMenuController.js',
     '/js/screenShareController.js',
     '/js/feedbackController.js',
-    '/js/googleAuth.js'
+    '/js/googleAuth.js',
+    '/js/phoneNumberController.js'
   ];
 
   var init = function () {
@@ -828,6 +830,9 @@ RecordingsController, ScreenShareController, FeedbackController */
     if (enableSip && requireGoogleAuth) {
       GoogleAuth.init(aParams.googleId, aParams.googleHostedDomain, function (aGoogleAuth) {
         googleAuth = aGoogleAuth;
+        if (googleAuth.isSignedIn.get()) {
+          document.body.data('google-signed-in', 'true');
+        }
       });
     }
 
@@ -869,6 +874,7 @@ RecordingsController, ScreenShareController, FeedbackController */
                                     aParams.firebaseToken, aParams.sessionId);
           ScreenShareController.init(userName, aParams.chromeExtId, otHelper, enableAnnotations);
           FeedbackController.init(otHelper);
+          PhoneNumberController.init();
           Utils.sendEvent('roomController:controllersReady');
         })
         .catch(function (error) {
