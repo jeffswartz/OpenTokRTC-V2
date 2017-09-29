@@ -122,6 +122,7 @@ describe('ChatController', () => {
         window.addEventListener('chatController:incomingMessage', function handlerTest(evt) {
           window.removeEventListener('chatController:incomingMessage', handlerTest);
           data.fromSelf = true;
+          data.senderId = 'myConnId';
           expect(evt.detail.data).to.be.deep.equal(data);
           done();
         });
