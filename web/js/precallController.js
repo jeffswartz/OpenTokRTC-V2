@@ -62,6 +62,15 @@
               });
           });
         document.querySelector(selector + ' input.username').focus();
+        function logNodeTreeVisibilty(node) {
+          while (node) {
+            node.style.opacity = 1;
+            node.style.visibilty = 'visible';
+            console.log(node, node.style.opacity, node.style.offsetWidth, node.style.offsetHeight, node.style.visibilty);
+            node = node.parentElement;
+          }
+        }
+        logNodeTreeVisibilty(document.getElementById('video-preview'));
 
         otHelper.initPublisher('video-preview',
           { width: '100%', height: '100%', insertMode: 'append', showControls: false }
