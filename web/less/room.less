@@ -480,7 +480,11 @@ body {
   margin-right: 41px;
   margin-top: 46px;
   padding: 20px;
-  width: 360px;
+  @media @smartphones {
+    max-width: none;
+    padding: 10px;
+  }
+  max-width: 360px;
   background: rgba(0,0,0,0.6);
   transform: translateY(0);
   color: white;
@@ -493,7 +497,7 @@ body {
     max-width: unset;
   }
 
-  header, footer, p {
+  header, p {
     margin: 0;
     padding: 0;
   }
@@ -512,8 +516,8 @@ body {
     word-break: break-all;
   }
 
-  footer {
-    margin-right: 20px
+  button#enter {
+    margin: 32px 0 0 0;
   }
 
   p {
@@ -533,7 +537,7 @@ body {
     border-radius: 4px;
   }
   .publish-settings {
-    padding: 20px;
+    padding-top: 20px;
     span {
       margin-right: 20px;
     }
@@ -655,11 +659,20 @@ body {
       font-size: 16px;
     }
     #test-status {
-      font-size: 10px;
-      line-height: 26px;
-      text-align: right;
-      @media @smartphonesPortrait {
-        letter-spacing: -0.05px;
+      position: absolute;
+      right: 10px;
+      label {
+        color: #c6c6c6;
+        font-size: 10px;
+        line-height: 26px;
+        text-align: right;
+        padding: 0;
+        @media @smartphonesPortrait {
+          letter-spacing: -0.05px;
+        }
+      }
+      button {
+        padding: 0 0 0 15px;
       }
     }
     img {
@@ -669,11 +682,17 @@ body {
     #precall-test-labels {
       display: flex;
     }
+    #connectivity-cancel {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
   }
 
   #precall-test-meter {
-    width: 290px;
-    margin-top: 12px;
+    position: absolute;
+    width: 330px;
+    margin-top: 8px;
     margin-left: 28px;
     @media @smartphonesPortrait {
       max-width: calc(~"100% - 80px");
