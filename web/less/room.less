@@ -464,6 +464,10 @@ body {
     left: 20px;
     width: 135px;
     height: 37px;
+    @media @smartphones {
+      display: none;
+      position: relative;
+    }
   }
 }
 
@@ -476,14 +480,18 @@ body {
   margin-right: 41px;
   margin-top: 46px;
   padding: 20px;
-  @media @smartphones {
-    max-width: none;
-    padding: 10px;
-  }
   width: 360px;
   background: rgba(0,0,0,0.6);
   transform: translateY(0);
   color: white;
+
+  @media @smartphonesPortrait {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    margin: 0;
+    max-width: unset;
+  }
 
   header, footer, p {
     margin: 0;
@@ -537,6 +545,13 @@ body {
     border-radius: 12px;
     .OT_publisher .OT_widget-container {
       border-radius: 12px;
+    }
+    @media @smartphonesPortrait {
+      position: relative;
+      max-height: 40%;
+      max-width: calc(~"100% - 20px");
+      top: 10px;
+      left: 10px;
     }
   }
   #video-preview-name {
@@ -643,6 +658,9 @@ body {
       font-size: 10px;
       line-height: 26px;
       text-align: right;
+      @media @smartphonesPortrait {
+        letter-spacing: -0.05px;
+      }
     }
     img {
       margin-left: -4px;
@@ -656,11 +674,16 @@ body {
   #precall-test-meter {
     width: 290px;
     margin-top: 12px;
-    margin-left: 28px
+    margin-left: 28px;
+    @media @smartphonesPortrait {
+      max-width: calc(~"100% - 80px");
+    }
   }
+
   #precall-test-meter-level {
     background-color: #10a9dc;
     height: 100%;
+    width: 0;
     background-image: -webkit-linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
     background-image: -o-linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
     background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
@@ -685,6 +708,10 @@ body {
   display: flex;
   align-items: center;
   height: 100%;
+  @media @smartphones {
+    width: 100%;
+    margin: 0;
+  }
 }
 
 #pre-call-test-results {
@@ -699,6 +726,11 @@ body {
   color: #494747;
   font-size: 14px;
   padding: 35px;
+
+  @media @smartphonesPortrait  {
+    left: calc(~"50% - 152px");
+  }
+
   p {
     font-size: 14px;
   }
@@ -788,6 +820,9 @@ body {
   position: absolute;
   top: 32px;
   left: 184px;
+  @media @smartphones {
+    display: none;
+  }
 }
 
 .feedback-report .tc-dialog {
@@ -911,6 +946,10 @@ footer.main {
 #enter.btn {
   overflow: hidden;
   width: 100%;
+  @media @smartphonesPortrait {
+    left: 10px;
+    width: calc(~"100% - 20px");
+  }
 }
 
 [data-chat-visible=true] footer.main {
