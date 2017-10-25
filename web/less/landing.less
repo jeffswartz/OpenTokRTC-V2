@@ -24,6 +24,7 @@ body {
 
   height: 100%;
   .justify-content(center);
+  text-shadow: black 1px 1px 12px;
 
   header {
     min-height: 222px;
@@ -105,16 +106,20 @@ body {
       width: 233px;
       color: white;
       outline: none;
+<<<<<<< HEAD
       @media @smartphonesPortrait {
         width: calc(~"100% - 180px");
       }
+=======
+      text-shadow: black 1px 1px 12px;
+>>>>>>> tbrel
     }
     textarea {
       padding: 12px 20px 10px 0;
     }
 
     label {
-      color: #748393;
+      color: #fff;
       font-size: 16px;
       line-height: 57px;
       width: 100%;
@@ -129,12 +134,14 @@ body {
       font-size: 12px;
     }
     #room-label.visited {
+      color: #748393;
       left: 278px;
       @media @smartphonesPortrait {
         left: calc(~"100% - 80px");
       }
     }
     #user-label.visited {
+      color: #748393;
       left: 296px;
       @media @smartphonesPortrait {
         left: calc(~"100% - 60px");
