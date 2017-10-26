@@ -32,9 +32,9 @@ body {
       min-height: 66px;
     }
     img {
+      margin-left: calc(~"50% - 100px");
       @media @smartphonesPortrait {
-        position: fixed;
-        right: 27px;
+        margin-left: calc(~"50% - 50px");
         top: 37px;
         width: 120px;
         height: 31.5px;
@@ -47,6 +47,9 @@ body {
     font-family: @muliRegularFont, arial;
     padding: 0;
     text-align: center;
+    @media @smartphonesPortrait {
+      visibility: hidden;
+    }
   }
 
   h1 {
@@ -57,9 +60,6 @@ body {
     font-weight: 200;
     line-height: 60px;
     margin: 10px 0;
-    @media @smartphonesPortrait {
-      display: none;
-    }
   }
 
   h2 {
@@ -67,9 +67,6 @@ body {
     font-weight: 400;
     margin: 6px 0;
     color: @grey4;
-    @media @smartphonesPortrait {
-      display: none;
-    }
   }
 
   h3 {
@@ -78,9 +75,6 @@ body {
     font-weight: 600;
     color: @grey3;
     padding: 10px;
-    @media @smartphonesPortrait {
-      display: none;
-    }
   }
 
   form {
