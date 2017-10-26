@@ -40,11 +40,11 @@ body {
 #top-banner {
   visibility: hidden;
   height: 98px;
-  min-width: 1294px;
   width: 100%;
   background-color: #293840;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
   position: absolute;
+  display: flex;
   top: 0;
   left: 0;
   right: 0;
@@ -114,8 +114,7 @@ body {
       width: unset;
     }
     div {
-      position:relative;
-      float: left;
+        float: left;
     }
   }
   .videoSwitch, .audioSwitch {
@@ -137,6 +136,8 @@ body {
     border-left: 1px solid #455b66;
     text-align: center;
     display: flex;
+    right: 0;
+    position: absolute;
     .flex-direction(row);
     .align-items(center);
     .justify-content(center);
