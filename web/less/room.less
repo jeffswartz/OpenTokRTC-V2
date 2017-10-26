@@ -108,6 +108,8 @@ body {
     .flex-direction(row);
     .align-items(center);
     .justify-content(center);
+    right: 0;
+    position: absolute;
 
     @media @smartphonesPortrait {
       float: left;
@@ -118,7 +120,6 @@ body {
     }
   }
   .videoSwitch, .audioSwitch {
-    margin-right: 48px;
     span {
       margin-left: 12px;
       vertical-align: top;
@@ -129,6 +130,9 @@ body {
     @media @smartphonesPortrait {
       display: none;
     }
+  }
+  .audioSwitch {
+    margin-right: 124px;
   }
   .layout-container {
     width: 114px;
@@ -161,10 +165,12 @@ body {
     margin: 28px 0;
     height: 40px;
     background-color: inherit !important;
-
+    right: 115px;
+    position: relative;
+    
     @media @smartphonesPortrait {
       top: -20px;
-      right: -8px;
+      right: 8px;
     }
 
     a {
@@ -183,7 +189,7 @@ body {
     padding: 0 37.5px;
     @media @smartphonesPortrait {
       top: -20px;
-      right: -8px;
+      right: 8px;
       width: 116px;
       margin: 0;
       padding: 0;
@@ -201,7 +207,7 @@ body {
   #manageRecordings {
     display: none;
     @media @smartphonesPortrait {
-      right: -42px;
+      right: -26px;
     }
     a {
       position: absolute;
