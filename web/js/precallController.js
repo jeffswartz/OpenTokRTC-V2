@@ -85,7 +85,6 @@
           // In Safari on iOS, you cannot use two publishers (the preview publisher and the network
           // test publisher) simultaneously.
           if (!Utils.isIE() && !Utils.isSafariIOS()) {
-            console.log('sdf')
             publisher.on('accessAllowed', function () {
               PrecallView.startPrecallTestMeter();
               otNetworkTest = new OTNetworkTest(previewOptions);
