@@ -75,6 +75,7 @@
   var Bubble = function (id) {
     this.container = document.querySelector('.bubble[for="' + id + '"]');
     this.topArrow = this.container.querySelector('.top-arrow');
+    this.bottomArrow = this.container.querySelector('.bottom-arrow');
     this.associatedWith = document.getElementById(id);
     this._onHidden = this._onHidden.bind(this);
 
@@ -157,6 +158,8 @@
       if (this.topArrow) {
         container.style.right = (window.innerWidth - rectObject.right - 20) + 'px';
         container.style.top = rectObject.bottom + VERTICAL_OFFSET + 'px';
+      } else if (this.bottomArrow) {
+        // Do not adjust the position. Position is set in the CSS.
       } else {
         container.style.left = rectObject.right + HORIZONTAL_OFFSET + 'px';
         container.style.top = (rectObject.top - rectObject.height) + 'px';

@@ -17,6 +17,8 @@ BubbleFactory, Clipboard, LayoutManager */
   var annotateBtnElem;
   var manageRecordingsElem;
   var messageButtonElem;
+  var dockOptionsMenuBtnElem;
+  var dockOptionsMenuElem;
   var participantsStrElem;
   var recordingsNumberElem;
   var videoSwitch;
@@ -232,6 +234,8 @@ BubbleFactory, Clipboard, LayoutManager */
     annotateBtnElem = document.getElementById('annotate');
     manageRecordingsElem = document.getElementById('manageRecordings');
     messageButtonElem = document.getElementById('message-btn');
+    dockOptionsMenuBtnElem = document.getElementById('dockOptionsMenu');
+    dockOptionsMenuElem = document.querySelector('[for="dockOptionsMenu"]');
     topBannerElem = document.getElementById('top-banner');
     screenElem = document.getElementById('screen');
 
@@ -492,6 +496,16 @@ BubbleFactory, Clipboard, LayoutManager */
         case 'message-btn':
           setChatStatus(!messageButtonElem.classList.contains('activated'));
           break;
+        case 'dockOptionsMenu':
+          Utils.sendEvent('roomView:optionsMenu');
+          if (!dockOptionsMenuBtnElem.classList.contains('activated')) {
+            setSwitchStatus(true, false, dockOptionsMenuBtnElem, 'roomView:optionsMenu');
+            BubbleFactory.get('dockOptionsMenu').toggle();
+          } else {
+            setSwitchStatus(false, false, dockOptionsMenuBtnElem, 'roomView:optionsMenu');
+            BubbleFactory.get('dockOptionsMenu').toggle();
+          }
+          break;
         case 'endCall':
           showConfirm(MODAL_TXTS.endCall).then(function (endCall) {
             if (endCall) {
@@ -505,6 +519,22 @@ BubbleFactory, Clipboard, LayoutManager */
 
     var menu = document.getElementById('top-banner');
 
+    dockOptionsMenuElem.addEventListener('click', function (e) {
+      var elem = e.target;
+      elem = HTMLElems.getAncestorByTagName(elem, 'div');
+      if (!elem) {
+        return;
+      }
+      BubbleFactory.get('dockOptionsMenu').hide();
+      switch (elem.id) {
+        case 'switch-camera':
+          Utils.sendEvent('roomView:switchCamera');
+          break;
+        case 'feedback-icon':
+          Utils.sendEvent('roomView:showFeedbackForm');
+          break;
+      }
+    });
     menu.addEventListener('click', function (e) {
       var elem = e.target;
       elem.blur();

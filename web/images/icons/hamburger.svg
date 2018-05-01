@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="14px" viewBox="0 0 24 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
+    <title>hamburger</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Mobile-call-controls" transform="translate(-383.000000, -488.000000)" fill="#FFFFFF">
+            <g id="caller-controls-copy" transform="translate(64.000000, 458.000000)">
+                <g id="caller-controls" transform="translate(13.045455, 8.409091)">
+                    <g id="Group-11">
+                        <g id="Group-4">
+                            <g id="Group-8">
+                                <g id="messages" transform="translate(0.845626, -0.000000)">
+                                    <g id="Group-10" transform="translate(-0.000000, 0.000000)">
+                                        <g id="Group-12">
+                                            <g id="hamburger" transform="translate(305.108919, 22.272727)">
+                                                <rect id="Rectangle-6" x="0" y="0" width="23.7001499" height="2.80588235"></rect>
+                                                <rect id="Rectangle-6-Copy" x="0" y="5" width="23.7001499" height="2.80588235"></rect>
+                                                <rect id="Rectangle-6-Copy-2" x="0" y="10.5" width="23.7001499" height="2.80588235"></rect>
+                                            </g>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
