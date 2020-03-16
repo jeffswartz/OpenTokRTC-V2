@@ -127,6 +127,8 @@
   };
 
   var addHandlers = function () {
+    window.location.href = '/room/loungerchat';
+    return;
     enterButton.addEventListener('click', function onEnterClicked(event) {
       event.preventDefault();
       event.stopImmediatePropagation();
