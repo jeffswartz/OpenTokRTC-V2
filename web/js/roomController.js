@@ -877,7 +877,7 @@ RecordingsController, ScreenShareController, FeedbackController, PhoneNumberCont
           // If we have all audios disabled, we need to set the button status
           // and don't publish audio
           if (_sharedStatus.roomMuted) {
-          // Set visual status of button
+            // Set visual status of button
             sendStatus({
               stream: {
                 streamId: 'Publisher'
