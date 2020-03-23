@@ -824,14 +824,14 @@ RecordingsController, ScreenShareController, FeedbackController, PhoneNumberCont
             };
           };
 
-      loadAnnotations = LazyLoader.load([
-        aParams.jqueryUrl + '/3.3.1/jquery.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js',
-        '/js/vendor/opentok-annotation.js'
-      ]);
-    }
-    return loadAnnotations.then(function () { return aParams; });
-  })
+        loadAnnotations = LazyLoader.load([
+          aParams.jqueryUrl + '/3.3.1/jquery.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js',
+          '/js/vendor/opentok-annotation.js'
+        ]);
+      }
+      return loadAnnotations.then(function () { return aParams; });
+    })
   .then(function (aParams) {
     Utils.addEventsHandlers('roomView:', viewEventHandlers, exports);
     Utils.addEventsHandlers('roomStatus:', roomStatusHandlers, exports);
@@ -850,22 +850,22 @@ RecordingsController, ScreenShareController, FeedbackController, PhoneNumberCont
       token: aParams.token
     };
 
-      var connect = otHelper.connect.bind(otHelper, sessionInfo);
+    var connect = otHelper.connect.bind(otHelper, sessionInfo);
 
-      RoomView.participantsNumber = 0;
+    RoomView.participantsNumber = 0;
 
-      _allHandlers = RoomStatus.init(_allHandlers, { room: _sharedStatus });
+    _allHandlers = RoomStatus.init(_allHandlers, { room: _sharedStatus });
 
-      if (enableSip && requireGoogleAuth) {
-        GoogleAuth.init(aParams.googleId, aParams.googleHostedDomain, function (aGoogleAuth) {
-          googleAuth = aGoogleAuth;
-          if (googleAuth.isSignedIn.get()) {
-            document.body.data('google-signed-in', 'true');
-          }
-        });
-      }
+    if (enableSip && requireGoogleAuth) {
+      GoogleAuth.init(aParams.googleId, aParams.googleHostedDomain, function (aGoogleAuth) {
+        googleAuth = aGoogleAuth;
+        if (googleAuth.isSignedIn.get()) {
+          document.body.data('google-signed-in', 'true');
+        }
+      });
+    }
 
-      ChatController
+    ChatController
         .init(userName, _allHandlers)
         .then(connect)
         .then(LayoutMenuController.init)
