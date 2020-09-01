@@ -250,11 +250,6 @@ BubbleFactory, Clipboard, LayoutManager */
     LayoutManager.remove(id);
   }
 
-  function deleteVideoButton(id) {
-    document.querySelector('li[data-id="' + id + '"] .controls .buttons .video-action')
-      .style.display = 'none';
-  }
-
   function showRoom() {
     initHTMLElements();
     topBannerElem.style.visibility = 'visible';
@@ -321,6 +316,11 @@ BubbleFactory, Clipboard, LayoutManager */
     if (publisherOptions.publishAudio) {
       setPublisherAudioSwitchStatus('activated');
     }
+  }
+
+  function deleteVideoButton(id) {
+    document.querySelector('li[data-id="' + id + '"] .controls .buttons .video-action')
+      .style.display = 'none';
   }
 
   function setSwitchStatus(status, bubbleUp, domElem, evtName) {

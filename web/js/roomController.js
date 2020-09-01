@@ -844,7 +844,6 @@ RecordingsController, ScreenShareController, FeedbackController, PhoneNumberCont
     };
 
     var publish = otHelper.publish.bind(otHelper);
-    var connect = otHelper.connect.bind(otHelper, sessionInfo);
 
     RoomView.participantsNumber = 0;
 
@@ -861,7 +860,6 @@ RecordingsController, ScreenShareController, FeedbackController, PhoneNumberCont
 
     ChatController
         .init(aParams.roomName, userName, _allHandlers)
-        .then(connect)
         .then(LayoutMenuController.init)
         .then(function () {
           var publisherElement = RoomView.createStreamView('publisher', {
@@ -904,7 +902,7 @@ RecordingsController, ScreenShareController, FeedbackController, PhoneNumberCont
         .then(function() {
           return new Promise(function(resolve) {
             ChatController.setHelper(otHelper);
-            otHelper.connect(_allHandlers).then(function() {
+            otHelper.connect(sessionInfo, _allHandlers).then(function() {
               resolve();
             });
           });
