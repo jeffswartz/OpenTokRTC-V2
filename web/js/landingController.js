@@ -34,14 +34,13 @@
       '/js/min/precallView.min.js',
       '/js/min/precallController.min.js',
       '/js/helpers/OTHelper.js',
-    ]).then(() => LandingView.init()).then(() => {
-      PrecallView.init();
-      return PrecallController.init();
-    }).then(() => {
-      const otHelper = new OTHelper({});
-      PrecallController.showCallSettingsPrompt('', '', otHelper);
-      addEventHandlers();
-    });
+    ]).then(() => LandingView.init()).then(() => PrecallView.init())
+      .then(() => PrecallController.init())
+      .then(() => {
+        const otHelper = new OTHelper({});
+        PrecallController.showCallSettingsPrompt('', '', otHelper);
+        addEventHandlers();
+      });
   };
 
   global.LandingController = {
