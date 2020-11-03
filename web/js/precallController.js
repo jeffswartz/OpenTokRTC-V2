@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-/* global Modal, OTNetworkTest, PrecallView, showTos, showUnavailable */
+/* global Modal, OpenTokNetworkConnectivity, PrecallView, showTos, showUnavailable */
 
 !((exports) => {
   const endPrecall = () => {
@@ -48,11 +48,7 @@
       },
       retest() {
         PrecallView.startPrecallTestMeter();
-        otNetworkTest.startNetworkTest((error, result) => {
-          if (!error) {
-            PrecallView.displayNetworkTestResults(result);
-          }
-        });
+        otNetworkTest.testQuality().then((result) => PrecallView.displayNetworkTestResults(result));
       },
       cancelTest() {
         PrecallView.hideConnectivityTest();
@@ -181,15 +177,20 @@
                     // eslint-disable-next-line max-len
                     PrecallView.populateAudioDevicesDropdown(audioDevs, publisherOptions.audioSource);
                   });
-                  // You cannot use the network test in Safari because you cannot use two
-                  // eslint-disable-next-line max-len
-                  // publishers (the preview publisher and the network test publisher) simultaneously.
-                  if (!Utils.isSafariIOS() && window.enablePrecallTest) {
+                  if (window.enablePrecallTest) {
                     PrecallView.startPrecallTestMeter();
-                    otNetworkTest = new OTNetworkTest(previewOptions);
-                    otNetworkTest.startNetworkTest((error, result) => {
+                    // OpenTokNetworkConnectivity is the name exposed by the
+                    // /js/helpers/opentok-network-test.js file. This is the
+                    // dist file of the opentok-network-test-js Node module,
+                    // which we are using without importing the module.
+                    // See https://github.com/opentok/opentok-network-test-js.
+                    // eslint-disable-next-line new-cap
+                    otNetworkTest = new OpenTokNetworkConnectivity.default(OT, previewOptions, {
+                      timeout: 15000,
+                    });
+                    otNetworkTest.testQuality().then((result) => {
                       PrecallView.displayNetworkTestResults(result);
-                      if (result.audioOnly) {
+                      if (!result.video.supported) {
                         publisher.publishVideo(false);
                         Utils.sendEvent('PrecallController:audioOnly');
                       }

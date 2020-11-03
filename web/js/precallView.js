@@ -261,7 +261,11 @@
   };
 
   const displayNetworkTestResults = (results) => {
+    let headingText;
     let packetLossStr;
+    let precallIconClass;
+
+    console.log(34, JSON.stringify(results));
 
     clearInterval(testMeterInterval);
     document.querySelector('#test-status label').innerText = 'Done.';
@@ -270,9 +274,9 @@
     document.getElementById('connectivity-cancel').style.display = 'none';
 
     document.getElementById('pre-call-test-results').style.display = 'block';
-    document.getElementById('audio-bitrate').innerText = Math.round(results.audio.bitsPerSecond / 1000);
+    document.getElementById('audio-bitrate').innerText = Math.round(results.audio.bitrate / 1000);
     if (results.video) {
-      document.getElementById('video-bitrate').innerText = Math.round(results.video.bitsPerSecond / 1000);
+      document.getElementById('video-bitrate').innerText = Math.round(results.video.bitrate / 1000);
       packetLossStr = isNaN(results.video.packetLossRatio) ? ''
         : `${Math.round(100 * results.video.packetLossRatio)}% packet loss`;
       document.getElementById('precall-video-packet-loss').innerText = packetLossStr;
@@ -280,23 +284,21 @@
       document.getElementById('video-bitrate').innerText = 0;
       document.getElementById('precall-video-packet-loss').innerText = 'No video.';
     }
-    const precallHeadingElement = document.getElementById('pre-call-heading');
+
     precallHeadingElement.classList = results.classification;
-    switch (results.classification) {
-      case 'precall-tick':
-        precallHeadingElement.innerText = 'Excellent Connectivity';
-        break;
-      case 'precall-warning':
-        precallHeadingElement.innerText = 'OK Connectivity';
-        break;
-      case 'precall-error':
-        precallHeadingElement.innerText = 'Poor Connectivity';
-        break;
-      default:
-        // No-op on default;
+    if (results.audio.mos > 3.5 && results.video.mos > 3.5) {
+      headingText = 'Excellent Connectivity';
+      precallIconClass = 'precall-tick';
+    } else if (results.audio.mos > 2.5) {
+      headingText = 'OK Connectivity';
+      precallIconClass = 'precall-warning';
+    } else {
+      headingText = 'Poor Connectivity';
+      precallIconClass = 'precall-error';
     }
-    document.getElementById('pre-call-description').innerText = results.text;
-    document.getElementById('precall-icon').setAttribute('data-icon', results.classification);
+    document.getElementById('pre-call-heading').innerText = headingText;
+    document.getElementById('pre-call-description').innerText = 'description TBD';
+    document.getElementById('precall-icon').setAttribute('data-icon', precallIconClass);
     packetLossStr = isNaN(results.audio.packetLossRatio) ? ''
       : `${Math.round(100 * results.audio.packetLossRatio)}% packet loss`;
     document.getElementById('precall-audio-packet-loss').innerText = packetLossStr;
